@@ -601,8 +601,8 @@ class AsyncPlatzi:
                 preview_callback(course_title, syllabus_units, metadata=course_metadata, slug=course_slug)
 
         # download directory
-        # Use relative path for portability
-        DL_DIR = Path("Courses") / clean_string(course_title)
+        # Use relative path for portability under data/courses
+        DL_DIR = Path("data/courses") / clean_string(course_title)
         DL_DIR.mkdir(parents=True, exist_ok=True)
 
         # Save assets locally to centralized assetmadre/{slug}/
