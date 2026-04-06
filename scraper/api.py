@@ -761,7 +761,7 @@ class AsyncPlatzi:
                         lesson_slug, 
                         draft_unit.title, 
                         course_title=course_title, 
-                        path=str(DL_DIR), # Relative path for portability
+                        path=str(DL_DIR), # Relative path (data/courses/...)
                         metadata=course_metadata,
                         lesson_metadata={
                             "local_path": unit_local_path,
@@ -799,126 +799,59 @@ class AsyncPlatzi:
             response = await client.send("Page.captureSnapshot")
             async with aiofiles.open(path, "w", encoding="utf-8", newline="\n") as file:
                 await file.write(response["data"])
-        except Exception:
-            raise Exception("Error saving page as mhtml")
-
-        if isinstance(src, str):
-            await page.close()
+        except Exception as e:
+            Logger.error(f"save_page error: {e}")
 
     @try_except_request
-    async def get_json(self, url: str) -> dict:
-        page = await self.page
-        await page.goto(url)
-        content = await page.locator("pre").first.text_content()
-        await page.close()
-        return json.loads(content or "{}")
-
-
-    async def _fetch_and_save(self, url: str, dest: Path, page: Page):
-        if not url: return None
-        try:
-            b64 = await page.evaluate("""
-                async (u) => {
-                    const r = await fetch(u);
-                    const b = await r.blob();
-                    return new Promise(res => {
-                        const rd = new FileReader();
-                        rd.onloadend = () => res(rd.result);
-                        rd.readAsDataURL(b);
-                    });
-                }
-            """, url)
-            if not b64 or ',' not in b64: return None
-            import base64
-            data = b64.split(',')[1]
-            dest.write_bytes(base64.b64decode(data))
-            # Return relative path for frontend
-            courses_base = Path("Courses").absolute()
-            rel = dest.absolute().relative_to(courses_base)
-            return f"/videos/{rel.as_posix()}"
-        except: return None
-
-    async def _save_course_assets(self, course_slug: str, metadata: Dict, page: Page):
-        """
-        Smartly saves or discovers course assets in the centralized repository.
-        Groups assets into data/assetmadre/{course_slug}/ for better organization.
-        """
-        try:
-            from scraper.utils import find_asset_match
-            # New centralized folder for the specific course
-            course_madre = DATA_DIR / "assetmadre" / course_slug
-            course_madre.mkdir(parents=True, exist_ok=True)
-            
-            # Legacy folders for cross-referencing
-            legacy_thumbs = DATA_DIR / "assetmadre" / "thumbnails"
-            legacy_badges = DATA_DIR / "assetmadre" / "badges"
-
-            # --- 1. LOGO (BADGE) ---
-            logo_url = metadata.get("logo_url")
-            # Search order: 1. Course folder, 2. Global badges
-            logo_path = course_madre / "logo.png"
-            if not logo_path.exists():
-                logo_path = course_madre / "logo.jpg"
-            
-            if logo_path.exists():
-                metadata["logo_url"] = f"assetmadre/{course_slug}/{logo_path.name}"
-                Logger.info(f"Reusing logo from course repository: {logo_path.name}")
-            else:
-                # Try legacy
-                legacy_match = find_asset_match(legacy_badges, course_slug)
-                if legacy_match:
-                    metadata["logo_url"] = f"assetmadre/badges/{legacy_match.name}"
-                    Logger.info(f"Reusing logo from legacy badges: {legacy_match.name}")
-                elif logo_url and not logo_url.startswith("assetmadre"):
-                    ext = "png" if ".png" in logo_url.lower() else "jpg"
-                    dest = course_madre / f"logo.{ext}"
-                    if await self._fetch_and_save(logo_url, dest, page):
-                        metadata["logo_url"] = f"assetmadre/{course_slug}/{dest.name}"
-                        Logger.info(f"Saved logo to course repository: {dest.name}")
-
-            # --- 2. THUMBNAIL ---
-            thumb_url = metadata.get("thumbnail_url")
-            # Search order: 1. Course folder, 2. Global thumbnails
-            thumb_path = course_madre / "thumbnail.jpg"
-            if not thumb_path.exists():
-                thumb_path = course_madre / "thumbnail.png"
-            
-            if thumb_path.exists():
-                metadata["thumbnail_url"] = f"assetmadre/{course_slug}/{thumb_path.name}"
-                Logger.info(f"Reusing thumbnail from course repository: {thumb_path.name}")
-            else:
-                # Try legacy
-                legacy_match = find_asset_match(legacy_thumbs, course_slug)
-                if legacy_match:
-                    metadata["thumbnail_url"] = f"assetmadre/thumbnails/{legacy_match.name}"
-                    Logger.info(f"Reusing thumbnail from legacy repository: {legacy_match.name}")
-                elif thumb_url and not thumb_url.startswith("assetmadre"):
-                    ext = "jpg" if ".jpg" in thumb_url.lower() else "png"
-                    dest = course_madre / f"thumbnail.{ext}"
-                    if await self._fetch_and_save(thumb_url, dest, page):
-                        metadata["thumbnail_url"] = f"assetmadre/{course_slug}/{dest.name}"
-                        Logger.info(f"Saved thumbnail to course repository: {dest.name}")
-
-            # Fallback SVG logic
-            if not metadata.get("logo_url"):
-                metadata["logo_url"] = "FALLBACK_LOGO_SVG"
-
-        except Exception as e:
-            Logger.warning(f"Unified asset saving failed for {course_slug}: {e}")
-
-    async def _save_state(self):
-        try:
+    async def get_json(self, url: str) -> Dict | None:
+        async with httpx.AsyncClient(headers=HEADERS) as client:
+            # Transfer cookies from playwright context to httpx
             cookies = await self.context.cookies()
-            write_json(SESSION_FILE, cookies)
-        except Exception as e:
-            Logger.error(f"Error saving session state: {e}")
+            cookie_dict = {c["name"]: c["value"] for c in cookies}
+            
+            resp = await client.get(url, cookies=cookie_dict)
+            if resp.status_code == 200:
+                return resp.json()
+        return None
 
-    async def _load_state(self):
-        if not SESSION_FILE.exists() or SESSION_FILE.stat().st_size == 0:
-            return
+    async def _save_state(self) -> None:
+        """Saves current browser state (cookies) to session file."""
+        cookies = await self._context.cookies()
+        with open(SESSION_FILE, "w") as f:
+            json.dump(cookies, f)
+
+    async def _load_state(self) -> None:
+        """Loads browser state (cookies) from session file."""
+        if Path(SESSION_FILE).exists():
+            with open(SESSION_FILE, "r") as f:
+                cookies = json.load(f)
+                await self._context.add_cookies(cookies)
+
+    async def _save_course_assets(self, slug: str, metadata: Dict, page: Page):
+        """Centralizes course branding assets (logo, thumbnail) in data/assetmadre/{slug}/."""
+        if not metadata: return
+        
+        course_madre = DATA_DIR / "assetmadre" / slug
+        course_madre.mkdir(parents=True, exist_ok=True)
+        
+        # Logo
+        if metadata.get("logo_url"):
+            ext = ".png" if ".png" in metadata["logo_url"] else ".jpg"
+            await self._fetch_and_save(metadata["logo_url"], course_madre / f"logo{ext}", page)
+            
+        # Thumbnail
+        if metadata.get("thumbnail_url"):
+            ext = ".jpg"
+            await self._fetch_and_save(metadata["thumbnail_url"], course_madre / f"thumbnail{ext}", page)
+
+    async def _fetch_and_save(self, url: str, path: Path, page: Page) -> bool:
+        """Downloads an image using the authenticated page context or httpx."""
+        if not url: return False
         try:
-            cookies = read_json(str(SESSION_FILE))
-            if cookies:
-                await self.context.add_cookies(cookies)
-        except Exception as e:
-            Logger.error(f"Error loading session state: {e}")
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(url, timeout=15)
+                if resp.status_code == 200:
+                    path.write_bytes(resp.content)
+                    return True
+        except: pass
+        return False
