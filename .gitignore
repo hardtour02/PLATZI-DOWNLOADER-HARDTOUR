@@ -7,6 +7,7 @@ data/gdrive_token.json
 *.json
 bin/
 downloads/
+data/courses/
 Courses/
 .tmp/
 *.mp4
