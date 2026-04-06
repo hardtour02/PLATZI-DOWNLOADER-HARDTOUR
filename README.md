@@ -60,9 +60,10 @@ Utiliza los lanzadores directos incluidos:
 
 ## 💡 Guía Rápida
 
-- **Iniciar Sesión**: Accede desde el panel visual o usa `platzi login`.
-- **Descargar**: Ingresa la URL del curso en la pestaña "Descargar".
-- **Modo Offline**: Una vez descargado el curso, utiliza la pestaña "Mis Cursos" para visualizar todo localmente.
+- **Iniciar Sesión**: Accede desde el panel lateral para vincular tu cuenta de Platzi.
+- **Explorar Catálogo**: Navega por escuelas y rutas en la pestaña **"Catálogo"** para encontrar tus cursos favoritos.
+- **Sincronización Inteligente**: Al hacer clic en el botón **Descargar** de cualquier curso en el catálogo, el sistema capturará automáticamente el enlace y lo transferirá al módulo de descarga sin intervención manual.
+- **Modo Offline**: Una vez completado, disfruta de tus clases en la pestaña **"Mis Cursos"** sin necesidad de conexión externa.
 
 ---
 
