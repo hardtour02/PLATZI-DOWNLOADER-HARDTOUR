@@ -1,5 +1,9 @@
 # Custom
 .DS_Store
+
+# Google Drive OAuth (private)
+data/gdrive_credentials.json
+data/gdrive_token.json
 *.json
 bin/
 downloads/

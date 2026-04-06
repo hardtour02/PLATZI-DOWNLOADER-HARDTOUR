@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Fondo circular -->
+  <circle cx="256" cy="256" r="256" fill="#12161F"/>
+  
+  <!-- Anillo exterior -->
+  <circle cx="256" cy="256" r="230" fill="none" stroke="#464EB8" stroke-width="8" opacity="0.3"/>
+  
+  <!-- Icono estilizado de Teams (letra T abstracta) -->
+  <g transform="translate(256, 256)">
+    <!-- Círculo base -->
+    <circle cx="0" cy="0" r="120" fill="#464EB8" opacity="0.2"/>
+    
+    <!-- Letra T estilizada -->
+    <path d="M -80 -60 L 80 -60 L 80 -20 L 20 -20 L 20 80 L -20 80 L -20 -20 L -80 -20 Z" fill="#464EB8"/>
+    
+    <!-- Elemento secundario (persona/equipo) -->
+    <circle cx="60" cy="60" r="25" fill="#0AE98A"/>
+  </g>
+  
+  <!-- Elementos decorativos -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#464EB8" stroke-width="2" opacity="0.1"/>
+  <circle cx="256" cy="256" r="150" fill="none" stroke="#464EB8" stroke-width="2" opacity="0.05"/>
+  
+  <!-- Texto "TEAMS" en la parte inferior -->
+  <text x="256" y="420" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#464EB8" text-anchor="middle" letter-spacing="6">TEAMS</text>
+</svg>

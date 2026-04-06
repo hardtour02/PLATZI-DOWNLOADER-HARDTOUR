@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Fondo circular -->
+  <circle cx="256" cy="256" r="256" fill="#12161F"/>
+  
+  <!-- Anillo exterior -->
+  <circle cx="256" cy="256" r="230" fill="none" stroke="#0AE98A" stroke-width="8" opacity="0.3"/>
+  
+  <!-- Logo de Platzi (triángulo/pirámide estilizado) -->
+  <g transform="translate(256, 280)">
+    <!-- Base del triángulo -->
+    <path d="M -120 80 L 0 -100 L 120 80 Z" fill="none" stroke="#0AE98A" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Línea horizontal superior -->
+    <path d="M -80 -40 L 80 -40" fill="none" stroke="#0AE98A" stroke-width="12" stroke-linecap="round"/>
+    
+    <!-- Línea horizontal inferior -->
+    <path d="M -40 20 L 40 20" fill="none" stroke="#0AE98A" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Elementos decorativos -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#0AE98A" stroke-width="2" opacity="0.1"/>
+  <circle cx="256" cy="256" r="150" fill="none" stroke="#0AE98A" stroke-width="2" opacity="0.05"/>
+  
+  <!-- Texto "PLATZI" en la parte inferior -->
+  <text x="256" y="420" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#0AE98A" text-anchor="middle" letter-spacing="8">PLATZI</text>
+</svg>

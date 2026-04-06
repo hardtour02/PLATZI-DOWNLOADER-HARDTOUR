@@ -1,0 +1,13 @@
+CURSOS SIN BADGE (usarán SVG por defecto)
+============================================================
+
+
+Negocios
+----------------------------------------
+  - microsoft-teams-2020
+    Título: Curso de Microsoft Teams: Optimiza la Colaboración y Gestión Empresarial (2020)
+
+Startups
+----------------------------------------
+  - microsoft-teams-2020
+    Título: Curso de Microsoft Teams: Optimiza la Colaboración y Gestión Empresarial (2020)

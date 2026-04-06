@@ -1,0 +1,2596 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platzi Premium Downloader</title>
+    <script src="/assets/assetsmenu/tailwind.min.js"></script>
+    <link href="/assets/assetsmenu/inter.css" rel="stylesheet">
+    <script src="/assets/assetsmenu/lucide.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #121212;
+            color: #e5e5e5;
+        }
+
+        /* ============ CARD  ============ */
+        .course-card {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .5);
+        }
+
+        /* The banner image area */
+        .card-banner {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            background: #1e2235;
+            /* safe fallback colour */
+        }
+
+        .card-banner img.thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* "NUEVO" badge */
+        .badge-nuevo {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #00f2a1;
+            color: #000;
+            font-size: 10px;
+            font-weight: 900;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        /* Hover play overlay */
+        .play-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all .3s ease;
+            backdrop-filter: blur(2px);
+        }
+
+        .course-card:hover .play-overlay {
+            opacity: 1;
+        }
+
+        .play-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #00f2a1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0, 242, 161, .3);
+            transform: scale(0.9);
+            transition: transform .2s ease;
+        }
+
+        .course-card:hover .play-circle {
+            transform: scale(1);
+        }
+
+        .play-icon-svg {
+            width: 20px;
+            height: 20px;
+            fill: #000;
+            margin-left: 2px;
+        }
+
+        /* Meta row (logo + text) */
+        .card-meta {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            margin-top: 14px;
+        }
+
+        .card-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #1e2235;
+            border: 1px solid #333;
+            object-fit: contain;
+            padding: 4px;
+            flex-shrink: 0;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.35;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            color: #e5e5e5;
+        }
+
+        .card-title:hover {
+            color: #00f2a1;
+        }
+
+        .card-author {
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 3px;
+        }
+
+        /* ============ PLAYER ============ */
+        #playerModal {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: #121212;
+            display: none;
+        }
+
+        .lesson-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all .15s;
+        }
+
+        .lesson-row:hover {
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .lesson-row.active {
+            background: rgba(0, 242, 161, .05);
+            border-color: rgba(0, 242, 161, .2);
+        }
+
+        .lesson-row.active .step-num {
+            background: #00f2a1;
+            border-color: #00f2a1;
+            color: #000;
+        }
+
+        .step-num {
+            min-width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .lesson-thumb {
+            width: 72px;
+            aspect-ratio: 16/9;
+            border-radius: 6px;
+            background: #1a1a2e;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        /* scrollbar */
+        .scr::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .scr::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 2px;
+        }
+
+        /* search/filter bar */
+        .search-bar {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #e5e5e5;
+            outline: none;
+            width: 100%;
+        }
+
+        .filter-chip {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: all .15s;
+            white-space: nowrap;
+        }
+
+        .filter-chip.active {
+            background: #00f2a1;
+            color: #000;
+            border-color: #00f2a1;
+        }
+
+        .filter-chip:not(.active):hover {
+            border-color: #555;
+        }
+
+        .glass-input {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #e5e5e5;
+            outline: none;
+            width: 100%;
+        }
+
+        /* Navigation */
+        .nav-sidebar {
+            width: 240px;
+            background: #181818;
+            border-right: 1px solid #2a2a2a;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 50;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #888;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all .2s;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #1e1e1e;
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: #00f2a115;
+            color: #00f2a1;
+            border-color: #00f2a130;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 40px 60px;
+            min-height: 100vh;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        /* Table Styles */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .custom-table th {
+            background: #222;
+            padding: 16px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: .05em;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        .custom-table td {
+            padding: 16px;
+            font-size: 13px;
+            color: #ccc;
+            border-bottom: 1px solid #222;
+        }
+
+        .custom-table tr:hover {
+            background: #222;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Sidebar -->
+    <nav class="nav-sidebar">
+        <div class="mb-10 px-4">
+            <h1 class="text-xl font-black tracking-tighter text-white">PLATZI<span class="text-[#00f2a1]">PVP</span>
+            </h1>
+            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Video Downloader</p>
+        </div>
+
+        <div class="space-y-1">
+            <div data-view="catalogo" class="nav-item active" onclick="switchView('catalogo')">
+                <i data-lucide="rocket" class="w-5 h-5"></i> Catálogo
+            </div>
+            <div data-view="descargar" class="nav-item" onclick="switchView('descargar')">
+                <i data-lucide="download-cloud" class="w-5 h-5"></i> Descargar
+            </div>
+            <div data-view="cursos" class="nav-item" onclick="switchView('cursos')">
+                <i data-lucide="library" class="w-5 h-5"></i> Cursos
+            </div>
+            <div data-view="drive" class="nav-item" onclick="switchView('drive')">
+                <i data-lucide="cloud" class="w-5 h-5"></i> Drive
+            </div>
+            <div data-view="registro" class="nav-item" onclick="switchView('registro')">
+                <i data-lucide="activity" class="w-5 h-5"></i> Actividad
+            </div>
+        </div>
+
+        <div class="mt-auto space-y-2 border-t border-white/10 pt-6 px-2">
+            <div data-view="cuenta" class="nav-item group" onclick="switchView('cuenta')">
+                <i data-lucide="user" class="w-5 h-5 text-sky-400"></i> Mi Cuenta
+            </div>
+            <div class="nav-item group" onclick="openFolder()">
+                <i data-lucide="folder" class="w-5 h-5 text-amber-400"></i> Carpeta Local
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- VIEW: CATÁLOGO -->
+        <section id="view-catalogo" class="view-section active">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-10 gap-6 relative">
+                <div class="shrink-0">
+                    <h2 class="text-3xl font-black mb-2">Catálogo Platzi</h2>
+                    <p class="text-slate-500 text-sm">Explora todas las escuelas, rutas y cursos.</p>
+                </div>
+
+                <div class="w-full lg:max-w-xl relative flex-1 order-last lg:order-none z-50">
+                    <div class="relative group">
+                        <i data-lucide="search"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-sky-400 transition-colors"></i>
+                        <input type="text" id="catalogSearchInput" oninput="performCatalogSearch(this.value)"
+                            placeholder="Buscar escuela, ruta o curso..."
+                            class="w-full bg-[#121212] border border-sky-500/30 rounded-xl py-3 pl-11 pr-10 text-sm font-medium text-white placeholder-slate-500 focus:outline-none focus:border-[#00f2a1]/80 focus:shadow-[0_0_15px_rgba(0,242,161,0.15)] transition-all">
+                        <button id="catalogSearchClearBtn" onclick="clearCatalogSearch()"
+                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white hidden transition-colors">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <!-- Dropdown Results -->
+                    <div id="catalogSearchResults"
+                        class="absolute top-full left-0 right-0 mt-2 bg-[#0d0f14] border border-white/10 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] hidden flex-col z-50 max-h-[550px] overflow-y-auto overflow-x-hidden p-2 gap-1 backdrop-blur-3xl">
+                        <!-- Populated dynamic search results -->
+                    </div>
+                </div>
+
+                <button onclick="syncCatalog()" id="syncCatalogBtn"
+                    class="bg-[#00f2a1] hover:brightness-110 text-black font-extrabold px-6 py-3 rounded-xl transition text-sm shadow-lg flex items-center gap-2 shrink-0">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    Actualizar
+                </button>
+            </div>
+
+            <!-- Breadcrumbs -->
+            <div id="catalogBreadcrumbs"
+                class="hidden flex items-center gap-3 text-xs font-bold text-slate-500 mb-8 px-2 uppercase tracking-widest">
+            </div>
+
+            <!-- Sync Progress Bar -->
+            <div id="catalogSyncProgress"
+                class="hidden bg-[#1a1a1a] border border-[#00f2a1]/20 rounded-2xl p-6 mb-10 shadow-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <span id="catalogSyncDetail" class="text-xs font-bold text-slate-400">Iniciando
+                        sincronización...</span>
+                    <span id="catalogSyncPercent" class="text-xs font-black text-[#00f2a1]">0%</span>
+                </div>
+                <div class="w-full bg-white/5 h-2.5 rounded-full overflow-hidden">
+                    <div id="catalogSyncBar" class="bg-[#00f2a1] h-full transition-all duration-500" style="width: 0%">
+                    </div>
+                </div>
+            </div>
+
+            <div id="catalogContent" class="space-y-12">
+                <!-- Se poblará dinámicamente -->
+                <div class="py-20 text-center opacity-20">
+                    <i data-lucide="rocket" class="w-16 h-16 mx-auto mb-4"></i>
+                    <p class="text-sm font-bold">Cargando catálogo maestro...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: DESCARGAR -->
+        <section id="view-descargar" class="view-section">
+            <div class="mb-10 flex flex-col md:flex-row gap-4 items-center max-w-4xl">
+                <div class="relative flex-1 w-full group">
+                    <i data-lucide="link"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-sky-400 transition-colors"></i>
+                    <input type="text" id="courseUrl" placeholder="Pega la URL del curso de Platzi aquí..."
+                        class="w-full bg-[#121212] border border-white/10 rounded-xl py-3.5 pl-11 pr-4 text-sm font-medium text-white placeholder-slate-600 focus:outline-none focus:border-sky-500/50 focus:shadow-[0_0_15px_rgba(56,189,248,0.1)] transition-all">
+                </div>
+                <button onclick="startDownload()"
+                    class="bg-[#00f2a1] hover:brightness-110 text-black font-extrabold px-10 py-3.5 h-full rounded-xl transition text-sm shadow-[0_10px_20px_-10px_rgba(0,242,161,0.3)] flex items-center gap-2 whitespace-nowrap">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Descargar
+                </button>
+            </div>
+
+            <!-- Active download progress -->
+            <div id="activeProgress"
+                class="hidden bg-[#1a1a1a] border border-[#00f2a1]/20 rounded-2xl p-8 mb-10 shadow-2xl overflow-hidden relative">
+                <div id="progressError"
+                    class="hidden bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-4 rounded-xl mb-6 flex items-center gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                    <span id="progressErrorMsg"></span>
+                </div>
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h3 class="font-black flex items-center gap-3 text-lg">
+                            <span id="pulseDot" class="w-3 h-3 rounded-full bg-[#00f2a1] animate-pulse"></span>
+                            <span id="downloadStatusText">Descargando Contenido</span>
+                        </h3>
+                        <p id="currentCourseTitleLive" class="text-slate-400 text-sm mt-1"></p>
+                    </div>
+                    <span id="syllabusCount"
+                        class="bg-white/5 px-3 py-1 rounded-full text-xs text-slate-500 font-bold border border-white/10"></span>
+                </div>
+                <div id="syllabusList" class="space-y-3 max-h-[500px] overflow-y-auto scr pr-2"></div>
+            </div>
+
+            <div id="syncShortcut"
+                class="hidden bg-sky-500/5 border border-sky-500/10 rounded-2xl p-6 flex items-center justify-between">
+                <div>
+                    <h4 class="font-bold text-sky-400 mb-1">Cursos Listos para Drive</h4>
+                    <p class="text-xs text-slate-500">Tienes cursos descargados que no han sido sincronizados.</p>
+                </div>
+                <button onclick="switchView('drive')"
+                    class="bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold px-4 py-2 rounded-lg transition">Ir
+                    a Drive</button>
+            </div>
+        </section>
+
+        <!-- VIEW: DETALLE CURSO (Syllabus completo) -->
+        <section id="view-curso" class="view-section">
+            <div class="mb-8">
+                <button onclick="volverAlCatalogo()"
+                    class="flex items-center gap-2 text-slate-400 hover:text-white transition mb-4">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span class="text-sm font-bold">Volver al Catálogo</span>
+                </button>
+                <div class="flex items-start gap-6">
+                    <div id="cursoLogo"
+                        class="w-16 h-16 rounded-2xl bg-[#1e2235] p-3 border border-white/10 flex items-center justify-center flex-shrink-0">
+                    </div>
+                    <div class="flex-1">
+                        <h2 id="cursoTitulo" class="text-3xl font-black mb-2">Cargando...</h2>
+                        <p id="cursoMeta" class="text-slate-500 text-sm"></p>
+                    </div>
+                </div>
+            </div>
+            <div id="cursoContenido" class="space-y-8">
+                <div class="py-20 text-center opacity-20">
+                    <i data-lucide="loader" class="w-16 h-16 mx-auto mb-4 animate-spin"></i>
+                    <p class="text-sm font-bold">Cargando syllabus...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: CURSOS -->
+        <section id="view-cursos" class="view-section">
+            <div class="flex justify-between items-end mb-10">
+                <div>
+                    <h2 class="text-3xl font-black mb-2">Mis Cursos</h2>
+                    <p class="text-slate-500 text-sm">Biblioteca local de contenido descargado.</p>
+                </div>
+            </div>
+
+            <!-- Search + Filter -->
+            <div class="flex flex-col gap-6 mb-12">
+                <div class="relative w-full">
+                    <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5"></i>
+                    <input id="searchInput" type="text" placeholder="Buscar en mi biblioteca..."
+                        class="search-bar pl-14 pr-12 text-sm" oninput="filterCourses()">
+                    <button id="searchClearBtn" onclick="clearSearch()"
+                        class="hidden absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition p-1.5 rounded-full hover:bg-white/10">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="filterChips" class="flex gap-2 overflow-x-auto py-1 scr">
+                    <button class="filter-chip active" onclick="setFilter('Todos', this)">Todos</button>
+                </div>
+            </div>
+
+            <div id="historyGrid" class="flex flex-col gap-12"></div>
+            <p id="emptyMsg" class="hidden text-center text-slate-500 py-20 font-medium">No se encontraron cursos que
+                coincidan con tu búsqueda.</p>
+        </section>
+
+        <!-- VIEW: DRIVE (Cloud Sync) -->
+        <section id="view-drive" class="view-section pt-6">
+            <header class="flex justify-between items-end mb-8 px-2">
+                <div>
+                    <h2 class="text-3xl font-black italic uppercase tracking-tighter">Sincronización Cloud</h2>
+                    <p class="text-slate-500 text-sm mt-1">Gestión de respaldo y compartición en Google Drive.</p>
+                </div>
+                <button onclick="syncRemoteDrive()"
+                    class="flex items-center gap-2 px-5 py-2.5 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 rounded-xl text-xs font-bold border border-sky-500/20 transition group">
+                    <i data-lucide="refresh-cw"
+                        class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500"></i>
+                    Sincronizar con Drive
+                </button>
+            </header>
+
+            <div id="driveContent" class="hidden">
+                <!-- Action Bar -->
+                <div id="driveActionBar"
+                    class="hidden sticky top-4 z-10 bg-[#1a1a1a]/95 backdrop-blur-md border border-white/10 rounded-2xl p-4 mb-8 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+                    <div class="flex items-center gap-5">
+                        <span id="driveSelectedCount" class="text-sm font-black text-sky-400"></span>
+                        <div class="flex gap-3">
+                            <button onclick="driveSelectAll()"
+                                class="text-[10px] uppercase tracking-wider font-bold text-slate-500 hover:text-white transition">Todos</button>
+                            <button onclick="driveSelectNone()"
+                                class="text-[10px] uppercase tracking-wider font-bold text-slate-500 hover:text-white transition">Ninguno</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <label class="flex items-center gap-3 text-xs text-slate-400 cursor-pointer select-none">
+                            <input type="checkbox" id="driveShareToggle" class="accent-sky-500 w-4 h-4 rounded">
+                            <span class="font-semibold">Sincronización Pública</span>
+                        </label>
+                        <button onclick="startDriveSync()"
+                            class="bg-sky-500 hover:bg-sky-400 text-white font-black px-6 py-3 rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-sky-500/10">
+                            <i data-lucide="cloud-upload" class="w-4 h-4"></i> Iniciar Sincronización
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Course Table -->
+                <div id="driveCourseGrid" class="mb-12"></div>
+                <!-- Upload Progress -->
+                <div id="driveProgressPanel" class="hidden space-y-4 mb-12"></div>
+            </div>
+        </section>
+
+        <!-- VIEW: ACTIVIDAD / REGISTRO -->
+        <section id="view-registro" class="view-section">
+            <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h2 class="text-3xl font-black mb-2">Historial de Sistema</h2>
+                    <p class="text-slate-500 text-sm">Bitácora de descargas y registro de envíos.</p>
+                </div>
+                <!-- Mini Tab Controller -->
+                <div class="flex bg-black/40 p-1 rounded-xl border border-white/5">
+                    <button onclick="switchRegTab('bitacora')" id="tab-bitacora"
+                        class="tab-btn active px-6 py-2 rounded-lg text-xs font-bold transition">Bitácora</button>
+                    <button onclick="switchRegTab('envios')" id="tab-envios"
+                        class="tab-btn px-6 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:text-white">Envíos
+                        Drive</button>
+                </div>
+            </div>
+
+            <style>
+                .tab-btn.active {
+                    background: #00f2a1;
+                    color: #000;
+                    box-shadow: 0 4px 12px rgba(0, 242, 161, 0.2);
+                }
+            </style>
+
+            <!-- TAB: BITACORA -->
+            <div id="reg-tab-bitacora" class="reg-tab-content">
+                <div class="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 180px;">Fecha / Hora</th>
+                                <th style="width: 120px;">Evento</th>
+                                <th>Mensaje</th>
+                                <th style="width: 100px;" class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityLogBody"></tbody>
+                    </table>
+                    <div id="activityEmpty" class="hidden p-20 text-center text-slate-500">
+                        <i data-lucide="activity" class="w-12 h-12 mx-auto mb-4 opacity-10"></i>
+                        <p class="text-sm">No hay actividad registrada recientemente.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ENVIOS -->
+            <div id="reg-tab-envios" class="reg-tab-content hidden">
+                <div class="flex flex-col gap-6 mb-10">
+                    <div class="relative w-full">
+                        <i data-lucide="search"
+                            class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5"></i>
+                        <input id="regSearchInput" type="text" placeholder="Buscar por email o curso..."
+                            class="search-bar pl-14 pr-12 text-sm" oninput="filterSharingLogs()">
+                        <button id="regSearchClearBtn" onclick="clearRegSearch()"
+                            class="hidden absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition p-1.5 rounded-full hover:bg-white/10">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Curso</th>
+                                <th>Email Destinatario</th>
+                                <th class="text-center">Fecha de Envío</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sharingLogBody"></tbody>
+                    </table>
+                    <div id="sharingEmpty" class="hidden p-20 text-center text-slate-500">
+                        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-4 opacity-20"></i>
+                        <p class="text-sm">No hay registros de envíos todavía.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: MI CUENTA (Consolidated login/logout) -->
+        <section id="view-cuenta" class="view-section pt-10">
+            <div class="max-w-2xl mx-auto">
+                <header class="mb-10 text-center">
+                    <h1 class="text-4xl font-black mb-3 italic tracking-tight uppercase">Mi Cuenta</h1>
+                    <p class="text-slate-400">Gestiona tus conexiones y preferencias del sistema.</p>
+                </header>
+
+                <div class="grid gap-6">
+                    <!-- PLATZI AUTH -->
+                    <div
+                        class="bg-[#1a1a1a] border border-white/10 rounded-2xl p-8 shadow-2xl overflow-hidden relative">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-xl font-bold flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-[#00f2a1]/20 flex items-center justify-center">
+                                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#00f2a1]"></i>
+                                    </div>
+                                    Sesión de Platzi
+                                </h3>
+                                <p class="text-sm text-slate-500 mt-1">Necesario para descargar lecciones bloqueadas.
+                                </p>
+                            </div>
+                            <div id="platziStatusBadge"
+                                class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"></div>
+                        </div>
+
+                        <div id="platziLoggedView" class="hidden">
+                            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
+                                <div class="w-12 h-12 rounded-full bg-sky-500/20 flex items-center justify-center">
+                                    <i data-lucide="user-check" class="w-6 h-6 text-sky-400"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div id="platziUserEmail" class="text-sm font-bold truncate"></div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Cuenta
+                                        Activa</div>
+                                </div>
+                                <button onclick="logout()"
+                                    class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-lg transition border border-red-500/20">
+                                    Cerrar Sesión
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="platziLoginView" class="space-y-4 pt-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="email" id="email" placeholder="Correo electrónico"
+                                    class="glass-input text-sm">
+                                <input type="password" id="password" placeholder="Contraseña"
+                                    class="glass-input text-sm">
+                            </div>
+                            <button id="loginBtn" onclick="performLogin()"
+                                class="w-full bg-sky-500 hover:bg-sky-400 text-white font-bold p-3 rounded-xl text-sm transition shadow-lg shadow-sky-500/20">
+                                Conectar con Platzi
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- GDRIVE AUTH -->
+                    <div class="bg-[#1a1a1a] border border-white/10 rounded-2xl p-8 shadow-2xl">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-xl font-bold flex items-center gap-2">
+                                    <i data-lucide="cloud" class="w-6 h-6 text-sky-400"></i>
+                                    Google Drive
+                                </h3>
+                                <p class="text-sm text-slate-500 mt-1">Gestiona la sincronización en la nube.</p>
+                            </div>
+                            <div id="driveStatusBadge"
+                                class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"></div>
+                        </div>
+
+                        <div id="driveLoggedView" class="hidden">
+                            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
+                                <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                    <i data-lucide="cloud-lightning" class="w-6 h-6 text-emerald-400"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div id="driveUserEmail" class="text-sm font-bold truncate"></div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Espacio
+                                        de Almacenamiento</div>
+                                </div>
+                                <button onclick="disconnectDrive()"
+                                    class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-lg transition border border-red-500/20">
+                                    Desconectar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="driveLoginView" class="text-center py-4">
+                            <button onclick="connectDrive()"
+                                class="bg-white hover:bg-slate-100 text-black font-bold px-8 py-3 rounded-xl text-sm transition flex items-center gap-2 mx-auto shadow-xl">
+                                <img src="/api/assets/assetsmenu/drive_logo.png"
+                                    class="w-5 h-5">
+                                Conectar Google Drive
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- CUSTOM MODALS -->
+
+    <!-- SHARING MODAL -->
+    <div id="shareModal"
+        class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md bg-black/60">
+        <div
+            class="bg-[#1a1a1a] border border-white/10 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+            <div class="p-8 border-b border-white/5 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-black italic uppercase italic tracking-tight">Compartir Curso</h2>
+                    <p id="shareModalCourseTitle" class="text-xs text-sky-400 font-bold mt-1"></p>
+                </div>
+                <button onclick="closeShareModal()"
+                    class="p-2 hover:bg-white/5 rounded-full transition text-slate-500 hover:text-white">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="p-8">
+                <label class="block text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-3">Añadir Correos
+                    (separados por coma o espacio)</label>
+                <div class="bg-black p-4 rounded-xl border border-white/5 min-h-[100px] flex flex-wrap gap-2 items-start"
+                    onclick="document.getElementById('shareEmailInput').focus()">
+                    <div id="shareEmailTags" class="flex flex-wrap gap-2"></div>
+                    <input id="shareEmailInput" type="text" placeholder="ejemplo@email.com"
+                        class="bg-transparent border-none outline-none text-sm p-1 flex-1 min-w-[150px]"
+                        onkeydown="handleShareEmailKeyDown(event)">
+                </div>
+                <p class="text-[10px] text-slate-400 mt-4 flex items-center gap-2">
+                    <i data-lucide="info" class="w-3 h-3"></i>
+                    Se enviarán invitaciones de "Solo Lectura" vía Google Drive.
+                </p>
+            </div>
+            <div class="p-8 bg-black/20 flex gap-4">
+                <button onclick="closeShareModal()"
+                    class="flex-1 py-3 text-sm font-bold text-slate-400 hover:text-white transition">Cancelar</button>
+                <button onclick="sendShareEmails()"
+                    class="flex-[2] py-3 bg-sky-500 hover:bg-sky-400 text-white font-bold rounded-xl text-sm transition shadow-lg shadow-sky-500/20 flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    Enviar Accesos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRM MODAL -->
+    <div id="confirmModal"
+        class="hidden fixed inset-0 z-[110] flex items-center justify-center p-6 backdrop-blur-md bg-black/60">
+        <div
+            class="bg-[#1a1a1a] border border-white/10 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div class="p-8 text-center">
+                <div id="confirmModalIcon" class="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center">
+                </div>
+                <h2 id="confirmModalTitle" class="text-xl font-black italic uppercase tracking-tight mb-2"></h2>
+                <p id="confirmModalText" class="text-sm text-slate-400 leading-relaxed"></p>
+            </div>
+            <div class="p-4 bg-black/20 flex gap-2">
+                <button onclick="closeConfirmModal(false)"
+                    class="flex-1 py-3 text-sm font-bold text-slate-400 hover:text-white transition">No,
+                    cancelar</button>
+                <button id="confirmBtn" class="flex-1 py-3 rounded-xl text-sm font-bold transition"></button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- PLAYER MODAL -->
+    <div id="playerModal">
+        <div style="display:flex; height:100%;">
+            <!-- Sidebar -->
+            <div
+                style="width:420px; border-right:1px solid #2a2a2a; display:flex; flex-direction:column; background:#1a1a1a;">
+                <div
+                    style="padding:20px 20px 16px; border-bottom:1px solid #2a2a2a; display:flex; align-items:center; gap:12px;">
+                    <button onclick="closePlayer()"
+                        style="background:none; border:none; cursor:pointer; color:#888; padding:6px; border-radius:8px;"
+                        onmouseover="this.style.background='rgba(255,255,255,.05)'"
+                        onmouseout="this.style.background='none'">
+                        <i data-lucide="arrow-left" style="width:20px;height:20px;"></i>
+                    </button>
+                    <div style="flex:1; overflow:hidden;">
+                        <p
+                            style="font-size:11px; color:#666; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px;">
+                            CONTENIDO DEL CURSO</p>
+                        <h2 id="playerCourseTitle"
+                            style="font-size:14px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                        </h2>
+                    </div>
+                </div>
+                <div id="playerPlaylist" class="scr" style="flex:1; overflow-y:auto; padding:16px;"></div>
+            </div>
+            <!-- Video area -->
+            <div
+                style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 60px;">
+                <div style="width:100%; max-width:900px;">
+                    <div
+                        style="aspect-ratio:16/9; background:#000; border-radius:20px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.6);">
+                        <video id="mainVideo" controls style="width:100%; height:100%;"></video>
+                    </div>
+                    <div style="margin-top:24px; display:flex; justify-content:space-between; align-items:flex-end;">
+                        <div>
+                            <h1 id="playerLessonTitle" style="font-size:22px; font-weight:800; line-height:1.2;"></h1>
+                            <p id="playerChapterName" style="color:#666; font-size:13px; margin-top:4px;"></p>
+                        </div>
+                        <div style="display:flex; gap:12px;">
+                            <button onclick="playPrev()"
+                                style="background:#2a2a2a; border:none; cursor:pointer; color:#e5e5e5; padding:12px 20px; border-radius:12px; display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600;">
+                                <i data-lucide="chevron-left" style="width:16px;height:16px;"></i> Anterior
+                            </button>
+                            <button onclick="playNext()"
+                                style="background:#00f2a1; border:none; cursor:pointer; color:#000; padding:12px 24px; border-radius:12px; display:flex; align-items:center; gap:6px; font-size:13px; font-weight:700;">
+                                Siguiente <i data-lucide="chevron-right" style="width:16px;height:16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const ws = new WebSocket(`ws://${location.host}/ws`);
+        let allCourses = {};
+        let playlist = [];
+        let currentIndex = -1;
+        let currentCourseSlug = null;
+        let activeFilter = 'Todos';
+        let sharingLogs = [];
+
+        // ============ SPA Navigation ============
+        function switchView(viewId) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            // Show target view
+            const target = document.getElementById('view-' + viewId);
+            if (target) target.classList.add('active');
+
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.view === viewId);
+            });
+
+            // Refresh data based on view
+            if (viewId === 'cursos') fetchHistory();
+            if (viewId === 'drive') loadDriveStatus();
+            if (viewId === 'registro') {
+                const activeTab = document.querySelector('.tab-btn.active').id.replace('tab-', '');
+                if (activeTab === 'bitacora') fetchActivityLogs();
+                else fetchSharingLogs();
+            }
+            if (viewId === 'catalogo') fetchCatalog();
+
+            lucide.createIcons();
+        }
+
+        function switchRegTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.toggle('active', b.id === 'tab-' + tab);
+                b.classList.toggle('text-slate-500', b.id !== 'tab-' + tab);
+            });
+            document.querySelectorAll('.reg-tab-content').forEach(c => {
+                c.classList.toggle('hidden', c.id !== 'reg-tab-' + tab);
+            });
+            if (tab === 'bitacora') fetchActivityLogs();
+            else fetchSharingLogs();
+        }
+
+        // ============ WebSocket ============
+        ws.onmessage = ({ data }) => {
+            const msg = JSON.parse(data);
+            if (msg.type === 'syllabus') showProgress(msg);
+            else if (msg.type === 'progress') updateProgress(msg.lesson_id, msg.progress);
+            else if (msg.type === 'catalog_progress') {
+                const panel = document.getElementById('catalogSyncProgress');
+                panel.classList.remove('hidden');
+                document.getElementById('catalogSyncDetail').innerText = msg.detail || 'Procesando...';
+                document.getElementById('catalogSyncPercent').innerText = msg.current + '%';
+                document.getElementById('catalogSyncBar').style.width = msg.current + '%';
+            }
+            else if (msg.type === 'catalog_done') {
+                setTimeout(() => {
+                    document.getElementById('catalogSyncProgress').classList.add('hidden');
+                    fetchCatalog();
+                }, 2000);
+            }
+            else if (msg.type === 'catalog_error') {
+                alert("Error al sincronizar catálogo: " + msg.message);
+                document.getElementById('catalogSyncProgress').classList.add('hidden');
+            }
+            else if (msg.type === 'error') {
+                const err = document.getElementById('progressError');
+                err.classList.remove('hidden');
+                document.getElementById('progressErrorMsg').innerText = msg.message;
+                document.getElementById('pulseDot').classList.replace('bg-[#00f2a1]', 'bg-red-500');
+                document.getElementById('downloadStatusText').innerText = 'Error en descarga:';
+                lucide.createIcons();
+            }
+        };
+
+        function showProgress(msg) {
+            document.getElementById('activeProgress').classList.remove('hidden');
+            document.getElementById('progressError').classList.add('hidden');
+            document.getElementById('pulseDot').classList.replace('bg-red-500', 'bg-[#00f2a1]');
+            document.getElementById('downloadStatusText').innerText = 'Descargando:';
+            document.getElementById('currentCourseTitleLive').innerText = msg.title;
+            document.getElementById('syllabusCount').innerText = msg.units.length + ' clases';
+            const list = document.getElementById('syllabusList');
+            list.innerHTML = '';
+            msg.units.forEach(u => {
+                // Cross-reference with history to show existing lessons
+                const courseHistory = (allCourses && allCourses[msg.slug]) ? allCourses[msg.slug].history : {};
+                const isDone = courseHistory && courseHistory[u.id];
+
+                const div = Object.assign(document.createElement('div'), {
+                    id: `lp-${u.id}`,
+                    innerHTML: `
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                    ${u.thumbnail_url ? `<img src="${u.thumbnail_url}" style="width:48px;height:30px;border-radius:4px;object-fit:cover;flex-shrink:0;">` : ''}
+                    <span style="flex:1;font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${u.title}</span>
+                    <span class="status-b" style="font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:4px;background:${isDone ? '#00f2a11a' : '#2a2a2a'};color:${isDone ? '#00f2a1' : '#888'};flex-shrink:0;">${isDone ? 'Listo ✓' : 'Esperando'}</span>
+                </div>
+                <div style="height:3px;background:#2a2a2a;border-radius:2px;margin-top:6px;overflow:hidden;">
+                    <div class="prog-fill" style="height:100%;width:${isDone ? '100%' : '0%'};background:#00f2a1;transition:width .3s;"></div>
+                </div>`,
+                    style: 'padding:8px 10px;border-radius:10px;background:#222;'
+                });
+                list.appendChild(div);
+            });
+        }
+
+        function updateProgress(id, pct) {
+            const el = document.getElementById(`lp-${id}`);
+            if (!el) {
+                // Retry once in case of race condition during rendering
+                setTimeout(() => {
+                    const retryEl = document.getElementById(`lp-${id}`);
+                    if (retryEl) updateProgress(id, pct);
+                }, 100);
+                return;
+            }
+            const fill = el.querySelector('.prog-fill');
+            if (fill) fill.style.width = pct + '%';
+
+            const b = el.querySelector('.status-b');
+            if (b) {
+                if (pct > 0 && pct < 100) { b.innerText = 'Bajando'; b.style.color = '#00f2a1'; b.style.background = 'rgba(0,242,161,.1)'; }
+                else if (pct >= 100) { b.innerText = 'Listo ✓'; b.style.color = '#00f2a1'; b.style.background = 'rgba(0,242,161,.15)'; fetchHistory(); }
+            }
+        }
+
+        // ============ History / Grid ============
+        // Fallback SVG (Platzi Style)
+        const FALLBACK_LOGO_SVG = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f2a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>');
+        const PLATZI_LOGO = FALLBACK_LOGO_SVG;
+
+        async function loadCatalogCacheSilent() {
+            try {
+                const r = await fetch('/api/catalog');
+                const data = await r.json();
+                if (data && data.schools) catalogCache = data;
+            } catch (e) { }
+        }
+
+        async function fetchHistory() {
+            // Ensuring global catalog payload exists to cross-reference UI badges early
+            if (!catalogCache) await loadCatalogCacheSilent();
+
+            const r = await fetch('/api/history');
+            const data = await r.json();
+            allCourses = data.courses || {};
+
+            // Auto-fetch assets for courses that are missing thumbnails
+            for (const [slug, c] of Object.entries(allCourses)) {
+                if (!c.thumbnail_url) {
+                    fetchAssets(slug); // fire-and-forget, will reload on completion
+                }
+            }
+
+            buildFilterChips();
+            renderGrid();
+        }
+
+        async function fetchAssets(slug) {
+            try {
+                const r = await fetch(`/api/fetch-assets/${slug}`, { method: 'POST' });
+                if (r.ok) {
+                    const data = await r.json();
+                    if (allCourses[slug]) {
+                        // Ensure local assets are prefixed with /api/assets/
+                        allCourses[slug].thumbnail_url = data.thumbnail_url ? (data.thumbnail_url.startsWith('http') ? data.thumbnail_url : `/api/assets/${data.thumbnail_url}`) : null;
+                        allCourses[slug].logo_url = data.logo_url ? (data.logo_url.startsWith('http') ? data.logo_url : `/api/assets/${data.logo_url}`) : null;
+                        allCourses[slug].author = data.author;
+                        allCourses[slug].category = data.category;
+                        renderGrid();
+                    }
+                }
+            } catch (e) { }
+        }
+
+        function buildFilterChips() {
+            const categories = [...new Set(
+                Object.values(allCourses)
+                    .map(c => c.category || "Otros")
+                    .filter(Boolean)
+                    .map(s => s.trim())
+            )];
+            const container = document.getElementById('filterChips');
+            // Keep first chip (Todos), rebuild the rest
+            container.innerHTML = `<button class="filter-chip ${activeFilter === 'Todos' ? 'active' : ''}" onclick="setFilter('Todos',this)">Todos</button>`;
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-chip ' + (activeFilter === cat ? 'active' : '');
+                btn.innerText = cat;
+                btn.onclick = () => setFilter(cat, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function setFilter(cat, btn) {
+            activeFilter = cat;
+            document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterCourses();
+        }
+
+        function filterCourses() {
+            const inp = document.getElementById('searchInput');
+            const q = inp.value.toLowerCase();
+            document.getElementById('searchClearBtn').classList.toggle('hidden', !inp.value);
+            renderGrid(q);
+        }
+
+        function clearSearch() {
+            const inp = document.getElementById('searchInput');
+            inp.value = '';
+            document.getElementById('searchClearBtn').classList.add('hidden');
+            renderGrid();
+            inp.focus();
+        }
+
+        // Mapeo seguro a la caché global del catálogo
+        function findCourseInCatalog(slug) {
+            if (!catalogCache || !catalogCache.schools) return null;
+            for (const school of catalogCache.schools) {
+                if (!school.rutas) continue;
+                for (const ruta of school.rutas) {
+                    if (!ruta.cursos) continue;
+                    const course = ruta.cursos.find(c => c.slug === slug);
+                    if (course) return course;
+                }
+            }
+            return null;
+        }
+
+        function renderGrid(q = '') {
+            const grid = document.getElementById('historyGrid');
+            const emptyMsg = document.getElementById('emptyMsg');
+            grid.innerHTML = '';
+            let shown = 0;
+
+            // Sort: newest first
+            const items = Object.entries(allCourses).sort((a, b) => {
+                return new Date(b[1].last_downloaded || 0) - new Date(a[1].last_downloaded || 0);
+            });
+
+            // Group courses by category
+            const grouped = {};
+            for (const [slug, c] of items) {
+                const matchSearch = !q || c.title.toLowerCase().includes(q) || slug.toLowerCase().includes(q);
+                const matchFilter = activeFilter === 'Todos' || (c.category || 'Otros') === activeFilter;
+                if (!matchSearch || !matchFilter) continue;
+
+                const cat = c.category && c.category.trim() !== '' ? c.category.trim() : 'Biblioteca Local';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push({ slug, ...c });
+                shown++;
+            }
+
+            if (shown === 0) {
+                emptyMsg.classList.remove('hidden');
+                return;
+            }
+            emptyMsg.classList.add('hidden');
+
+            // Render each category as a section
+            for (const [cat, courses] of Object.entries(grouped)) {
+                const section = document.createElement('div');
+                section.className = 'mb-12';
+
+                const heading = document.createElement('h2');
+                heading.className = 'text-xl font-black mb-6 flex items-center gap-3 text-slate-100 border-b border-white/5 pb-3';
+                heading.innerHTML = `<span class="bg-[#00f2a1] w-1.5 h-6 rounded-full"></span> ${cat} <span class="bg-white/5 text-[10px] px-2 py-0.5 rounded border border-white/5 text-slate-500 ml-auto uppercase tracking-widest font-bold">${courses.length} cursos</span>`;
+                section.appendChild(heading);
+
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
+
+                courses.forEach(c => {
+                    const catalogData = findCourseInCatalog(c.slug);
+
+                    let thumb = c.thumbnail_url || '';
+                    let logo = null;
+
+                    // Local asset resolution
+                    const resolvePath = (p) => {
+                        if (!p || p.startsWith('http') || p.startsWith('data:') || p.startsWith('/api/')) return p;
+                        return `/api/assets/${p.replace(/^\/+/, '')}`.replace(/([^:])\/\//g, '$1/');
+                    };
+
+                    thumb = resolvePath(thumb);
+
+                    // Resolve Logo Priority
+                    if (catalogData && catalogData.badge_local) {
+                        logo = resolvePath(catalogData.badge_local);
+                    }
+                    if (!logo && c.logo_url) {
+                        logo = resolvePath(c.logo_url);
+                    }
+                    if (!logo) {
+                        // Predictive local path
+                        logo = `/api/assets/assetmadre/${c.slug}/logo.png`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'course-card group bg-[#1a1a1a] border border-white/10 rounded-3xl overflow-hidden flex flex-col transition-all hover:border-[#00f2a1]/30 hover:shadow-2xl';
+                    card.onclick = () => openPlayer(c.slug);
+
+                    const displayLogo = (logo === 'FALLBACK_LOGO_SVG' || !logo) ? FALLBACK_LOGO_SVG : logo;
+
+                    const lessons = c.total_lessons || 0;
+                    const size = c.total_size || '0 B';
+                    const exists = c.exists !== false; // history_manager now returns this
+
+                    // Level badge from catalog data or history
+                    const lvl = (catalogData && catalogData.level) || c.level || '';
+                    const lvlColors = {
+                        'Básico': 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
+                        'Intermedio': 'bg-sky-500/15 text-sky-400 border-sky-500/20',
+                        'Avanzado': 'bg-purple-500/15 text-purple-400 border-purple-500/20',
+                    };
+                    const lvlBadge = lvl
+                        ? `<span class="inline-flex items-center text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${lvlColors[lvl] || 'bg-white/5 text-slate-400 border-white/10'}">${lvl}</span>`
+                        : '';
+
+                    card.innerHTML = `
+                <div class="card-banner aspect-video relative">
+                    ${thumb ? `<img src="${thumb}" class="thumb w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.outerHTML='<div class=\\'w-full h-full flex items-center justify-center bg-slate-900 text-slate-700 text-[10px] font-black\\'>SIN MINIATURA</div>'">` : '<div class="w-full h-full bg-slate-900 border-b border-white/5"></div>'}
+                    ${!exists ? '<div class="absolute inset-0 bg-red-950/40 backdrop-blur-sm flex items-center justify-center text-[10px] font-black text-red-400 uppercase tracking-widest px-4 text-center">Archivo no encontrado en disco</div>' : ''}
+                    <div class="play-overlay">
+                        <div class="play-circle">
+                            <svg class="play-icon-svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-5 flex-1 flex flex-col relative">
+                    <div class="absolute -top-6 right-5 w-12 h-12 rounded-full bg-[#1a1a1a] p-1.5 border border-white/10 shadow-xl overflow-hidden">
+                        <img src="${displayLogo}" class="w-full h-full object-contain rounded-full" onerror="this.src='${FALLBACK_LOGO_SVG}'">
+                    </div>
+                    <div class="mb-2">${lvlBadge}</div>
+                    <h3 class="font-bold text-sm leading-tight mb-4 pr-2 line-clamp-2 group-hover:text-[#00f2a1] transition-colors">${c.title}</h3>
+                    <div class="mt-auto flex items-center justify-between pt-2 border-t border-white/5">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${lessons} clases</span>
+                        <span class="text-[10px] font-bold text-slate-600 bg-white/5 px-2 py-0.5 rounded">${size}</span>
+                    </div>
+                </div>
+            `;
+                    row.appendChild(card);
+                });
+                section.appendChild(row);
+                grid.appendChild(section);
+            }
+            lucide.createIcons();
+        }
+
+        // ============ Player ============
+        async function openPlayer(slug) {
+            const r = await fetch(`/api/course-content/${slug}`);
+            const data = await r.json();
+            if (!r.ok) return alert(data.message);
+
+            const c = allCourses[slug] || {};
+            document.getElementById('playerCourseTitle').innerText = data.title;
+
+            const plist = document.getElementById('playerPlaylist');
+            plist.innerHTML = '';
+            playlist = [];
+            let lessonGlobal = 0;
+
+            data.chapters.forEach(ch => {
+                // Chapter heading
+                const heading = Object.assign(document.createElement('p'), {
+                    innerText: ch.name,
+                    style: 'font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.06em;margin:18px 0 8px;'
+                });
+                plist.appendChild(heading);
+
+                // Connector line wrapper
+                const wrap = Object.assign(document.createElement('div'), { style: 'position:relative;' });
+                const line = Object.assign(document.createElement('div'), {
+                    style: 'position:absolute;left:12px;top:12px;bottom:12px;width:1px;background:#2a2a2a;'
+                });
+                wrap.appendChild(line);
+                plist.appendChild(wrap);
+
+                ch.lessons.forEach(l => {
+                    const idx = playlist.length;
+                    lessonGlobal++;
+                    playlist.push({ ...l, chapterName: ch.name });
+
+                    const row = document.createElement('div');
+                    row.id = `pi-${idx}`;
+                    row.className = 'lesson-row';
+                    row.onclick = () => playVideo(idx);
+
+                    row.innerHTML = `
+                <div class="step-num">${lessonGlobal}</div>
+                <div class="lesson-thumb" style="background:#1e1e1e;">
+                    ${l.thumbnail_url ? `<img src="${l.thumbnail_url}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" loading="lazy">` : (c.thumbnail_url ? `<img src="${c.thumbnail_url}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;opacity:0.6;" loading="lazy">` : '')}
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:12px;font-weight:600;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;">${l.title}</div>
+                    ${l.duration ? `<div style="font-size:10px;color:#555;margin-top:3px;">${l.duration}</div>` : ''}
+                </div>
+            `;
+                    wrap.appendChild(row);
+                });
+            });
+
+            document.getElementById('playerModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+
+            let savedIdx = 0;
+            try {
+                const state = JSON.parse(localStorage.getItem('platzi_progress_' + slug) || '{}');
+                if (typeof state.lastIdx === 'number' && state.lastIdx < playlist.length) {
+                    savedIdx = state.lastIdx;
+                }
+            } catch (e) { }
+
+            if (playlist.length > 0) playVideo(savedIdx);
+        }
+
+        function playVideo(idx) {
+            if (idx < 0 || idx >= playlist.length) return;
+            currentIndex = idx;
+            const l = playlist[idx];
+
+            if (currentCourseSlug) {
+                localStorage.setItem('platzi_progress_' + currentCourseSlug, JSON.stringify({ lastIdx: idx }));
+            }
+
+            document.querySelectorAll('.lesson-row').forEach(r => r.classList.remove('active'));
+            const el = document.getElementById(`pi-${idx}`);
+            if (el) { el.classList.add('active'); el.scrollIntoView({ block: 'nearest' }); }
+
+            document.getElementById('playerLessonTitle').innerText = l.title;
+            document.getElementById('playerChapterName').innerText = l.chapterName;
+
+            const v = document.getElementById('mainVideo');
+            v.src = l.url;
+            v.play().catch(() => { });
+        }
+
+        function playNext() { if (currentIndex < playlist.length - 1) playVideo(currentIndex + 1); }
+        function playPrev() { if (currentIndex > 0) playVideo(currentIndex - 1); }
+        document.getElementById('mainVideo').onended = playNext;
+
+        function closePlayer() {
+            document.getElementById('playerModal').style.display = 'none';
+            document.body.style.overflow = '';
+            document.getElementById('mainVideo').pause();
+        }
+
+        // ============ Utilities ============
+        async function syncRemoteDrive() {
+            const btn = event.currentTarget || document.activeElement;
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="w-4 h-4 animate-spin" data-lucide="refresh-cw"></i> Sincronizando...';
+            btn.disabled = true;
+            lucide.createIcons();
+
+            try {
+                const r = await fetch('/api/gdrive/sync-remote', { method: 'POST' });
+                const res = await r.json();
+                if (r.ok) {
+                    alert(res.message);
+                    loadDriveCourses();
+                } else {
+                    alert('Error Sync: ' + (res.error || 'Respuesta inesperada del servidor'));
+                }
+            } catch (e) {
+                alert('Error de conexión');
+            } finally {
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+        async function checkDriveSession() {
+            try {
+                const r = await fetch('/api/gdrive/status');
+                const data = await r.json();
+                driveStatus = data; // Crucial: update global driveStatus for connectDrive()
+
+                const driveLogged = document.getElementById('driveLoggedView');
+                const driveLogin = document.getElementById('driveLoginView');
+                const driveBadge = document.getElementById('driveStatusBadge');
+                const driveEmail = document.getElementById('driveUserEmail');
+
+                if (data.authenticated) {
+                    driveLogged.classList.remove('hidden');
+                    driveLogin.classList.add('hidden');
+                    driveEmail.innerText = data.email || 'Conectado';
+                    driveBadge.innerText = 'Autenticado';
+                    driveBadge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                } else {
+                    driveLogged.classList.add('hidden');
+                    driveLogin.classList.remove('hidden');
+                    driveBadge.innerText = 'Desconectado';
+                    driveBadge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/10 text-red-400 border border-red-500/20';
+                }
+            } catch (e) { }
+            lucide.createIcons();
+        }
+
+        async function checkSession() {
+            try {
+                const r = await fetch('/api/me');
+                const data = await r.json();
+
+                const platziLogged = document.getElementById('platziLoggedView');
+                const platziLogin = document.getElementById('platziLoginView');
+                const platziBadge = document.getElementById('platziStatusBadge');
+                const platziEmail = document.getElementById('platziUserEmail');
+
+                if (data.logged_in) {
+                    platziLogged.classList.remove('hidden');
+                    platziLogin.classList.add('hidden');
+                    platziEmail.innerText = data.email;
+                    platziBadge.innerText = 'Conectado';
+                    platziBadge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-500/10 text-sky-400 border border-sky-500/20';
+                } else {
+                    platziLogged.classList.add('hidden');
+                    platziLogin.classList.remove('hidden');
+                    platziBadge.innerText = 'Desconectado';
+                    platziBadge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/10 text-red-400 border border-red-500/20';
+                }
+            } catch (e) { }
+            lucide.createIcons();
+        }
+
+        async function logout() {
+            if (confirm('¿Cerrar sesión de Platzi?')) {
+                await fetch('/api/logout', { method: 'POST' });
+                document.getElementById('loginWarning').innerText = "Sesión cerrada. Inicia sesión nuevamente.";
+                checkSession();
+            }
+        }
+
+        function toggleLogin() {
+            switchView('cuenta');
+        }
+
+        async function performLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+
+            if (!email || !password) return alert("Ingresa tu correo y contraseña");
+
+            btn.innerText = "Conectando...";
+            btn.disabled = true;
+            btn.classList.add("opacity-50");
+
+            const r = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            btn.innerText = "Conectar con Platzi";
+            btn.disabled = false;
+            btn.classList.remove("opacity-50");
+
+            if (r.ok) {
+                alert('Sesión iniciada correctamente ✓');
+                checkSession();
+            }
+            else alert('Error: credenciales incorrectas o problemas de conexión');
+        }
+
+        async function startDownload(force = false) {
+            const url = document.getElementById('courseUrl').value.trim();
+            if (!url) return;
+
+            const r = await fetch('/api/download', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url, force })
+            });
+            const res = await r.json();
+
+            if (res.status === 'exists') {
+                const confirmDownload = confirm(res.message + "\n\n¿Deseas volver a descargarlo o verificar archivos faltantes?");
+                if (confirmDownload) startDownload(true);
+            } else if (res.status === 'error') {
+                alert("Error: " + res.message);
+            }
+        }
+
+        async function openFolder() { await fetch('/api/open-folder', { method: 'POST' }); }
+
+        // Hash routing handler
+        function handleHashRoute() {
+            const hash = window.location.hash.replace('#', '');
+            if (hash.startsWith('curso/')) {
+                const slug = hash.replace('curso/', '');
+                cargarVistaCurso(slug);
+            } else if (['catalogo', 'descargar', 'cursos', 'drive', 'registro', 'cuenta'].includes(hash)) {
+                switchView(hash);
+            } else {
+                switchView('catalogo');
+            }
+        }
+
+        // Boot
+        handleHashRoute();
+
+        // Listen for hash changes
+        window.addEventListener('hashchange', handleHashRoute);
+
+        fetchHistory();
+        checkSession();
+        checkDriveSession();
+        fetchSharingLogs();
+
+        // === GDRIVE MODULE ===
+        let driveStatus = null;
+        let driveSelected = new Set();
+        let driveCourseStatus = {};
+
+        async function loadDriveStatus() {
+            try {
+                const r = await fetch('/api/gdrive/status');
+                driveStatus = await r.json();
+            } catch (e) { driveStatus = { authenticated: false, email: null, auth_url: null }; }
+
+            if (driveStatus.authenticated) {
+                document.getElementById('driveContent').classList.remove('hidden');
+                loadDriveCourses();
+            } else {
+                document.getElementById('driveContent').classList.add('hidden');
+            }
+        }
+
+        function connectDrive() {
+            if (!driveStatus.auth_url) return;
+            const popup = window.open(driveStatus.auth_url, 'gdrive_auth', 'width=500,height=700');
+            window.addEventListener('message', function handler(e) {
+                if (e.data === 'gdrive_auth_success') {
+                    window.removeEventListener('message', handler);
+                    if (popup) popup.close();
+                    loadDriveStatus();
+                }
+            });
+        }
+
+        async function disconnectDrive() {
+            if (!confirm('¿Desconectar tu cuenta de Google Drive?')) return;
+            await fetch('/api/gdrive/logout', { method: 'POST' });
+            driveStatus = { authenticated: false, email: null, auth_url: null };
+            driveCourseStatus = {};
+            driveSelected.clear();
+            loadDriveStatus();
+            checkDriveSession(); // Update account view
+        }
+
+        async function loadDriveCourses() {
+            try {
+                const [hRes, sRes] = await Promise.all([
+                    fetch('/api/history'),
+                    fetch('/api/gdrive/course-status')
+                ]);
+                const historyData = await hRes.json();
+                driveCourseStatus = await sRes.json();
+                renderDriveCourseGrid(historyData.courses || {});
+            } catch (e) { }
+        }
+
+        function renderDriveCourseGrid(courses, filterQ = '') {
+            const grid = document.getElementById('driveCourseGrid');
+            grid.innerHTML = '';
+            const entries = Object.entries(courses);
+            if (entries.length === 0) { grid.innerHTML = '<p class="text-center text-slate-500 py-10">No hay cursos descargados.</p>'; return; }
+
+            let html = `<div class="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden">
+    <table class="w-full text-left">
+    <thead><tr class="border-b border-white/10 text-[11px] text-slate-500 uppercase tracking-wider">
+        <th class="p-4 w-10"><input type="checkbox" id="driveCheckAll" class="accent-sky-500 w-4 h-4 rounded cursor-pointer" onchange="driveCheckAll(this.checked)"></th>
+        <th class="p-4">Curso</th>
+        <th class="p-4">Estado</th>
+        <th class="p-4 text-center">Fecha de Subida</th>
+        <th class="p-4 text-center">Acciones</th>
+    </tr></thead><tbody>`;
+
+            for (const [slug, c] of entries) {
+                if (filterQ && !c.title.toLowerCase().includes(filterQ.toLowerCase())) continue;
+
+                const st = driveCourseStatus[slug] || {};
+                const catalogData = findCourseInCatalog(slug);
+
+                // Resolve Logo
+                let logo = null;
+                const resolvePath = (p) => {
+                    if (!p || p.startsWith('http') || p.startsWith('data:') || p.startsWith('/api/')) return p;
+                    return `/api/assets/${p.replace(/^\/+/, '')}`.replace(/([^:])\/\//g, '$1/');
+                };
+
+                // Priority 1: Catalog local badge
+                if (catalogData && catalogData.badge_local) {
+                    logo = resolvePath(catalogData.badge_local);
+                }
+
+                // Priority 2: History logo url
+                if (!logo && c.logo_url) {
+                    logo = resolvePath(c.logo_url);
+                }
+
+                // Priority 3: Predictable assetmadre path
+                if (!logo) {
+                    logo = `/api/assets/assetmadre/${slug}/logo.png`;
+                }
+
+                const displayLogo = (logo === 'FALLBACK_LOGO_SVG' || !logo) ? FALLBACK_LOGO_SVG : logo;
+
+                const synced = st.synced;
+                const checked = driveSelected.has(slug) ? 'checked' : '';
+                const isRemote = !c.path; // Check if course is only remote (no local path)
+                const uploadDate = st.gdrive_synced_at ? new Date(st.gdrive_synced_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '---';
+
+                const statusBadge = isRemote
+                    ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20">☁️ Solo en Nube</span>'
+                    : (synced
+                        ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">✅ En Local & Drive</span>'
+                        : '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/20">📤 Pendiente</span>');
+
+                const actions = st.folder_url
+                    ? `<div class="flex items-center justify-center gap-2">
+                <a href="${st.folder_url}" target="_blank" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sky-400 hover:text-sky-300 transition" title="Abrir en Drive">
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                </a>
+                <button onclick="copyToClipboard('${st.folder_url}')" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-emerald-400 hover:text-emerald-300 transition" title="Copiar Link">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+                <button onclick="openShareModal('${slug}')" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-amber-400 hover:text-amber-300 transition" title="Compartir por Correo">
+                    <i data-lucide="mail-plus" class="w-4 h-4"></i>
+                </button>
+                <button onclick="deleteDriveFolder('${slug}')" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-red-400 hover:text-red-300 transition" title="Eliminar de Drive">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+               </div>`
+                    : '<span class="text-slate-600">—</span>';
+
+                html += `<tr class="border-b border-white/5 hover:bg-white/[.03] transition">
+            <td class="p-4"><input type="checkbox" class="drive-cb accent-sky-500 w-4 h-4 rounded cursor-pointer" data-slug="${slug}" ${checked} onchange="toggleDriveSelect('${slug}', this.checked)"></td>
+            <td class="p-4"><div class="flex items-center gap-3">
+                <img src="${displayLogo}" class="w-9 h-9 rounded-full bg-[#1e2235] border border-white/10 object-contain p-1 flex-shrink-0" onerror="this.src='${FALLBACK_LOGO_SVG}'">
+                <div class="min-w-0"><div class="text-sm font-semibold truncate">${c.title}</div><div class="text-[11px] text-slate-500">${c.author || 'Platzi'}</div></div>
+            </div></td>
+            <td class="p-4">${statusBadge}</td>
+            <td class="p-4 text-center text-xs text-slate-400">${uploadDate}</td>
+            <td class="p-4 text-center">${actions}</td>
+        </tr>`;
+            }
+            html += '</tbody></table></div>';
+            grid.innerHTML = html;
+            lucide.createIcons();
+            updateDriveActionBar();
+        }
+        function driveCheckAll(checked) {
+            document.querySelectorAll('.drive-cb').forEach(cb => { cb.checked = checked; toggleDriveSelect(cb.dataset.slug, checked); });
+        }
+
+        function toggleDriveSelect(slug, checked) {
+            if (checked) driveSelected.add(slug); else driveSelected.delete(slug);
+            updateDriveActionBar();
+        }
+        function driveSelectAll() {
+            document.querySelectorAll('.drive-cb').forEach(cb => { cb.checked = true; driveSelected.add(cb.dataset.slug); });
+            updateDriveActionBar();
+        }
+        function driveSelectNone() {
+            document.querySelectorAll('.drive-cb').forEach(cb => { cb.checked = false; });
+            driveSelected.clear();
+            updateDriveActionBar();
+        }
+
+        function filterDriveCourses() {
+            const inp = document.getElementById('driveSearchInput');
+            const q = inp.value.toLowerCase();
+            document.getElementById('driveSearchClearBtn').classList.toggle('hidden', !q);
+
+            // We don't want to re-fetch history, just re-render with the current data
+            fetch('/api/history').then(r => r.json()).then(data => {
+                renderDriveCourseGrid(data.courses || {}, q);
+            });
+        }
+
+        function clearDriveSearch() {
+            const inp = document.getElementById('driveSearchInput');
+            inp.value = '';
+            document.getElementById('driveSearchClearBtn').classList.add('hidden');
+            filterDriveCourses();
+            inp.focus();
+        }
+
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                alert('\u{1F4CB} Enlace copiado al portapapeles');
+            } catch (err) {
+                alert('Error al copiar: ' + err);
+            }
+        }
+
+        async function openShareModal(slug) {
+            const c = allCourses[slug] || { title: slug };
+            currentShareSlug = slug;
+            shareEmails = [];
+            document.getElementById('shareModalCourseTitle').innerText = c.title;
+            document.getElementById('shareEmailTags').innerHTML = '';
+            document.getElementById('shareEmailInput').value = '';
+            document.getElementById('shareModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.add('hidden');
+        }
+
+        function handleShareEmailKeyDown(e) {
+            if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
+                e.preventDefault();
+                const val = e.target.value.trim().replace(/,/g, '');
+                if (val && val.includes('@')) {
+                    addShareEmail(val);
+                    e.target.value = '';
+                }
+            }
+        }
+
+        function addShareEmail(email) {
+            if (shareEmails.includes(email)) return;
+            shareEmails.push(email);
+            renderShareTags();
+        }
+
+        function removeShareEmail(email) {
+            shareEmails = shareEmails.filter(e => e !== email);
+            renderShareTags();
+        }
+
+        function renderShareTags() {
+            const container = document.getElementById('shareEmailTags');
+            container.innerHTML = '';
+            shareEmails.forEach(email => {
+                const tag = document.createElement('div');
+                tag.className = 'flex items-center gap-2 px-3 py-1 bg-sky-500/20 text-sky-400 rounded-lg text-xs font-bold border border-sky-500/20';
+                tag.innerHTML = `${email} <button onclick="removeShareEmail('${email}')" class="hover:text-white"><i data-lucide="x" class="w-3 h-3"></i></button>`;
+                container.appendChild(tag);
+            });
+            lucide.createIcons();
+        }
+
+        async function sendShareEmails() {
+            if (shareEmails.length === 0) {
+                const val = document.getElementById('shareEmailInput').value.trim();
+                if (val && val.includes('@')) shareEmails.push(val);
+                else return alert('Añade al menos un correo válido');
+            }
+
+            const btn = event.currentTarget;
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="w-4 h-4 animate-spin" data-lucide="loader-2"></i> Enviando...';
+            btn.disabled = true;
+            lucide.createIcons();
+
+            try {
+                const r = await fetch('/api/gdrive/share-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug: currentShareSlug, emails: shareEmails })
+                });
+                const res = await r.json();
+                if (r.ok) {
+                    alert(res.message);
+                    closeShareModal();
+                    fetchSharingLogs();
+                } else {
+                    alert('Error: ' + res.error);
+                }
+            } catch (e) {
+                alert('Error de conexión');
+            } finally {
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+
+        // Confirm Modal helper
+        function openConfirmModal(title, text, type, onConfirm) {
+            const modal = document.getElementById('confirmModal');
+            const icon = document.getElementById('confirmModalIcon');
+            const titleEl = document.getElementById('confirmModalTitle');
+            const textEl = document.getElementById('confirmModalText');
+            const btn = document.getElementById('confirmBtn');
+
+            titleEl.innerText = title;
+            textEl.innerText = text;
+
+            if (type === 'danger') {
+                icon.className = 'w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center bg-red-500/20 text-red-500';
+                icon.innerHTML = '<i data-lucide="alert-triangle" class="w-8 h-8"></i>';
+                btn.className = 'flex-1 py-3 bg-red-500 hover:bg-red-400 text-white rounded-xl text-sm font-bold transition';
+                btn.innerText = 'Sí, eliminar';
+            } else {
+                icon.className = 'w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center bg-sky-500/20 text-sky-400';
+                icon.innerHTML = '<i data-lucide="info" class="w-8 h-8"></i>';
+                btn.className = 'flex-1 py-3 bg-sky-500 hover:bg-sky-400 text-white rounded-xl text-sm font-bold transition';
+                btn.innerText = 'Confirmar';
+            }
+
+            btn.onclick = () => { closeConfirmModal(false); onConfirm(); };
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+        }
+
+        async function deleteDriveFolder(slug) {
+            const c = allCourses[slug] || { title: slug };
+            openConfirmModal(
+                'Eliminar de Drive',
+                `¿Estás seguro de que deseas eliminar la carpeta de "${c.title}" en Google Drive? Esta acción no afectará tus archivos locales.`,
+                'danger',
+                async () => {
+                    try {
+                        const r = await fetch(`/api/gdrive/folder/${slug}`, { method: 'DELETE' });
+                        const res = await r.json();
+                        if (r.ok) {
+                            alert(res.message);
+                            loadDriveCourses();
+                        } else alert('Error: ' + res.error);
+                    } catch (e) { alert('Error de conexión'); }
+                }
+            );
+        }
+
+        function updateDriveActionBar() {
+            const bar = document.getElementById('driveActionBar');
+            if (driveSelected.size > 0) {
+                bar.classList.remove('hidden');
+                document.getElementById('driveSelectedCount').innerText = driveSelected.size + ' curso' + (driveSelected.size > 1 ? 's' : '') + ' seleccionado' + (driveSelected.size > 1 ? 's' : '');
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+
+        async function startDriveSync() {
+            if (driveSelected.size === 0) return;
+
+            // Warn about already-synced courses
+            const slugs = [...driveSelected];
+            const alreadySynced = slugs.filter(s => driveCourseStatus[s]?.synced);
+            if (alreadySynced.length > 0) {
+                const names = alreadySynced.map(s => allCourses[s]?.title || s).join('\n  • ');
+                const msg = alreadySynced.length === slugs.length
+                    ? `Todos los cursos seleccionados ya est\u00e1n en Drive:\n  \u2022 ${names}\n\n\u00bfDeseas verificar y sincronizar archivos faltantes?`
+                    : `Algunos cursos ya est\u00e1n en Drive:\n  \u2022 ${names}\n\nSe verificar\u00e1n y se subir\u00e1n solo los archivos faltantes. \u00bfContinuar?`;
+                if (!confirm(msg)) return;
+            }
+
+            const share = document.getElementById('driveShareToggle').checked;
+
+            // Show progress panel
+            const panel = document.getElementById('driveProgressPanel');
+            panel.classList.remove('hidden');
+            panel.innerHTML = '';
+            slugs.forEach(slug => {
+                const title = allCourses[slug]?.title || slug;
+                const div = document.createElement('div');
+                div.id = `gdp-${slug}`;
+                div.className = 'bg-[#1a1a1a] border border-white/10 rounded-2xl p-5';
+                div.innerHTML = `
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-sm font-bold">📚 ${title}</span>
+                <span class="gdp-status text-[10px] font-bold px-2 py-1 rounded-md bg-slate-700 text-slate-300">⏳ En cola</span>
+            </div>
+            <div class="gdp-filename text-xs text-slate-500 mb-2">Esperando...</div>
+            <div class="w-full h-2 bg-[#2a2a2a] rounded-full overflow-hidden">
+                <div class="gdp-bar h-full bg-sky-500 transition-all duration-300 rounded-full" style="width:0%"></div>
+            </div>
+            <div class="gdp-detail text-[10px] text-slate-500 mt-2"></div>`;
+                panel.appendChild(div);
+            });
+
+            await fetch('/api/gdrive/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slugs, share })
+            });
+        }
+
+        // WebSocket handlers — wrap existing handler to add GDrive events
+        (function () {
+            const _prev = ws.onmessage;
+            ws.onmessage = function (event) {
+                try {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === 'gdrive_progress') return handleGdriveProgress(msg);
+                    if (msg.type === 'gdrive_done') return handleGdriveDone(msg);
+                    if (msg.type === 'gdrive_already_synced') return handleGdriveAlreadySynced(msg);
+                    if (msg.type === 'gdrive_error') return handleGdriveError(msg);
+                } catch (e) { }
+                if (_prev) _prev.call(ws, event);
+            };
+        })();
+
+        function handleGdriveProgress(msg) {
+            const el = document.getElementById(`gdp-${msg.slug}`);
+            if (!el) return;
+            el.querySelector('.gdp-status').innerHTML = '📤 Subiendo';
+            el.querySelector('.gdp-status').className = 'gdp-status text-[10px] font-bold px-2 py-1 rounded-md bg-sky-500/20 text-sky-400';
+            el.querySelector('.gdp-filename').innerText = '📄 ' + msg.filename;
+            const pct = msg.pct || 0;
+            el.querySelector('.gdp-bar').style.width = pct + '%';
+            el.querySelector('.gdp-detail').innerText = `Archivo ${msg.file_idx} de ${msg.total_files}  •  ${pct}%`;
+        }
+
+        function handleGdriveDone(msg) {
+            const el = document.getElementById(`gdp-${msg.slug}`);
+            if (el) {
+                const stats = (msg.uploaded > 0 && msg.skipped > 0)
+                    ? `${msg.uploaded} subidos, ${msg.skipped} ya existían`
+                    : `${msg.uploaded} archivos subidos`;
+                el.querySelector('.gdp-status').innerHTML = '✅ Completado';
+                el.querySelector('.gdp-status').className = 'gdp-status text-[10px] font-bold px-2 py-1 rounded-md bg-emerald-500/20 text-emerald-400';
+                el.querySelector('.gdp-bar').style.width = '100%';
+                el.querySelector('.gdp-bar').classList.replace('bg-sky-500', 'bg-emerald-500');
+                el.querySelector('.gdp-filename').innerText = stats;
+                el.querySelector('.gdp-detail').innerHTML = `<a href="${msg.folder_url}" target="_blank" class="text-sky-400 hover:underline">📂 Abrir en Drive</a>`;
+            }
+            loadDriveCourses();
+        }
+
+        function handleGdriveAlreadySynced(msg) {
+            const el = document.getElementById(`gdp-${msg.slug}`);
+            if (el) {
+                el.querySelector('.gdp-status').innerHTML = '✔️ Ya sincronizado';
+                el.querySelector('.gdp-status').className = 'gdp-status text-[10px] font-bold px-2 py-1 rounded-md bg-amber-500/20 text-amber-400';
+                el.querySelector('.gdp-bar').style.width = '100%';
+                el.querySelector('.gdp-bar').classList.replace('bg-sky-500', 'bg-amber-500');
+                el.querySelector('.gdp-filename').innerText = `${msg.total_files} archivos verificados — todos ya están en Drive`;
+                el.querySelector('.gdp-detail').innerHTML = `<a href="${msg.folder_url}" target="_blank" class="text-sky-400 hover:underline">📂 Abrir en Drive</a>`;
+            }
+            loadDriveCourses();
+        }
+
+        function handleGdriveError(msg) {
+            const el = document.getElementById(`gdp-${msg.slug}`);
+            if (el) {
+                el.querySelector('.gdp-status').innerHTML = '❌ Error';
+                el.querySelector('.gdp-status').className = 'gdp-status text-[10px] font-bold px-2 py-1 rounded-md bg-red-500/20 text-red-400';
+                el.querySelector('.gdp-bar').classList.replace('bg-sky-500', 'bg-red-500');
+                el.querySelector('.gdp-detail').innerText = msg.message;
+            }
+        }
+        // === ACTIVITY LOGS (BITACORA) ===
+        async function fetchActivityLogs() {
+            try {
+                const r = await fetch('/api/activity?limit=100');
+                const data = await r.json();
+                renderActivityTable(data.events || []);
+            } catch (e) { console.error("Error fetching activity logs", e); }
+        }
+
+        function renderActivityTable(events) {
+            const tbody = document.getElementById('activityLogBody');
+            const empty = document.getElementById('activityEmpty');
+            tbody.innerHTML = '';
+
+            if (events.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            events.reverse().forEach(ev => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-white/5 hover:bg-white/[.03] transition';
+
+                const dateStr = new Date(ev.timestamp).toLocaleString('es-ES', {
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                });
+
+                let statusClass = 'text-slate-500 bg-white/5';
+                if (ev.status === 'success') statusClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+                else if (ev.status === 'error') statusClass = 'text-red-400 bg-red-500/10 border-red-500/20';
+                else if (ev.type.includes('start')) statusClass = 'text-sky-400 bg-sky-500/10 border-sky-500/20';
+
+                tr.innerHTML = `
+            <td class="p-4 text-xs font-mono text-slate-500">${dateStr}</td>
+            <td class="p-4">
+                <span class="text-[9px] font-black uppercase tracking-tighter px-2 py-0.5 rounded border ${statusClass}">${ev.type}</span>
+            </td>
+            <td class="p-4">
+                <div class="text-sm font-medium text-slate-300">${ev.message}</div>
+                ${ev.slug ? `<div class="text-[10px] text-slate-600 mt-0.5">Slug: ${ev.slug}</div>` : ''}
+            </td>
+            <td class="p-4 text-center">
+                <i data-lucide="${ev.status === 'success' ? 'check-circle' : ev.status === 'error' ? 'x-circle' : 'clock'}" 
+                   class="w-4 h-4 mx-auto ${ev.status === 'success' ? 'text-emerald-500' : ev.status === 'error' ? 'text-red-500' : 'text-slate-600'}"></i>
+            </td>
+        `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        // === SHARING LOGS (REGISTRO) ===
+        async function fetchSharingLogs() {
+            try {
+                const r = await fetch('/api/sharing');
+                const data = await r.json();
+                sharingLogs = data.logs || [];
+                renderSharingTable();
+            } catch (e) { console.error("Error fetching logs", e); }
+        }
+
+        function renderSharingTable(logsToRender = null) {
+            const logs = logsToRender || sharingLogs;
+            const tbody = document.getElementById('sharingLogBody');
+            const empty = document.getElementById('sharingEmpty');
+            tbody.innerHTML = '';
+
+            if (logs.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            logs.forEach(log => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-white/5 hover:bg-white/[.03] transition';
+
+                const dateStr = new Date(log.timestamp).toLocaleString('es-ES', {
+                    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                tr.innerHTML = `
+            <td class="p-4">
+                <div class="font-bold text-slate-200">${log.title}</div>
+                <div class="text-[10px] text-slate-500 font-mono">${log.slug}</div>
+            </td>
+            <td class="p-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-500"></i>
+                    <span class="text-sky-400 font-medium">${log.email}</span>
+                </div>
+            </td>
+            <td class="p-4 text-center text-xs text-slate-500">${dateStr}</td>
+            <td class="p-4">
+                <div class="flex items-center justify-center gap-2">
+                    ${log.url ? `<a href="${log.url}" target="_blank" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition" title="Ir al Curso"><i data-lucide="external-link" class="w-4 h-4"></i></a>` : ''}
+                    <button onclick="updateSharingLog('${log.id}', '${log.email}')" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-amber-400 hover:text-amber-300 transition" title="Editar Email">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                    </button>
+                    <button onclick="deleteSharingLog('${log.id}')" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-red-400 hover:text-red-300 transition" title="Eliminar Registro">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        function filterSharingLogs() {
+            const q = document.getElementById('regSearchInput').value.toLowerCase();
+            document.getElementById('regSearchClearBtn').classList.toggle('hidden', !q);
+            const filtered = sharingLogs.filter(l =>
+                l.email.toLowerCase().includes(q) ||
+                l.title.toLowerCase().includes(q) ||
+                l.slug.toLowerCase().includes(q)
+            );
+            renderSharingTable(filtered);
+        }
+
+        function clearRegSearch() {
+            const inp = document.getElementById('regSearchInput');
+            inp.value = '';
+            document.getElementById('regSearchClearBtn').classList.add('hidden');
+            renderSharingTable();
+            inp.focus();
+        }
+
+        async function deleteSharingLog(id) {
+            if (!confirm('¿Eliminar este registro de envío?')) return;
+            try {
+                const r = await fetch(`/api/sharing/${id}`, { method: 'DELETE' });
+                if (r.ok) fetchSharingLogs();
+            } catch (e) { alert("Error al eliminar"); }
+        }
+
+        async function updateSharingLog(id, oldEmail) {
+            const newEmail = prompt('Nuevo email para este registro:', oldEmail);
+            if (!newEmail || newEmail === oldEmail || !newEmail.includes('@')) return;
+
+            try {
+                const r = await fetch(`/api/sharing/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: newEmail })
+                });
+                if (r.ok) fetchSharingLogs();
+            } catch (e) { alert("Error al actualizar"); }
+        }
+
+        // === CATALOGO ===
+        let catalogCache = null;
+
+        async function syncCatalog() {
+            const btn = document.getElementById('syncCatalogBtn');
+            if (!btn) return;
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="w-4 h-4 animate-spin"></i> Solicitando...';
+            btn.disabled = true;
+
+            try {
+                const r = await fetch('/api/catalog/sync', { method: 'POST' });
+                // The backend returns success immediately while sync runs in background
+                const res = await r.json();
+                if (!r.ok) alert('Error: ' + (res.error || 'Fallo al iniciar sincronización'));
+                else {
+                    // Show progress panel immediately
+                    document.getElementById('catalogSyncProgress').classList.remove('hidden');
+                }
+            } catch (e) {
+                alert('Error de conexión');
+            } finally {
+                btn.innerHTML = oldHtml;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+
+        async function fetchCatalog() {
+            if (catalogCache) {
+                renderCatalogSchools(catalogCache.schools || []);
+                return;
+            }
+
+            try {
+                const r = await fetch('/api/catalog');
+                const data = await r.json();
+
+                // If data is empty but endpoint succeeded, maybe just hasn't synced yet.
+                catalogCache = data;
+                if (data.schools && data.schools.length > 0) {
+                    renderCatalogSchools(data.schools);
+                } else {
+                    document.getElementById('catalogContent').innerHTML = `
+                <div class="py-20 text-center text-slate-500">
+                    <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-4 opacity-20"></i>
+                    <p class="text-sm mb-4">El catálogo aún no ha sido sincronizado.</p>
+                    <button onclick="syncCatalog()" class="text-sky-400 font-bold hover:underline text-sm">Sincronizar ahora</button>
+                </div>
+            `;
+                    lucide.createIcons();
+                }
+            } catch (e) {
+                document.getElementById('catalogContent').innerHTML = '<p class="text-center text-red-400 py-10">Error al cargar catálogo.</p>';
+            }
+        }
+
+        // ============ Master Search Component ============
+        function clearCatalogSearch() {
+            document.getElementById('catalogSearchInput').value = '';
+            document.getElementById('catalogSearchResults').classList.add('hidden');
+            document.getElementById('catalogSearchClearBtn').classList.add('hidden');
+        }
+
+        function performCatalogSearch(q) {
+            const resBox = document.getElementById('catalogSearchResults');
+            const xBtn = document.getElementById('catalogSearchClearBtn');
+
+            if (!q || q.trim() === '') {
+                resBox.classList.add('hidden');
+                xBtn.classList.add('hidden');
+                return;
+            }
+
+            xBtn.classList.remove('hidden');
+            resBox.classList.remove('hidden');
+
+            if (!catalogCache || !catalogCache.schools) {
+                resBox.innerHTML = '<div class="p-4 text-center text-slate-500 text-xs">Cargando catálogo...</div>';
+                return;
+            }
+
+            const query = q.toLowerCase();
+            const results = [];
+            let count = 0;
+            const MAX_RESULTS = 50;
+
+            for (const s of catalogCache.schools) {
+                if (count >= MAX_RESULTS) break;
+                const sName = s.nombre || s.title || '';
+
+                // Match Escuelas
+                if (sName.toLowerCase().includes(query)) {
+                    results.push({ type: 'ESCUELA', title: sName, meta: `${(s.rutas || []).length} Rutas`, obj: s, parent: null });
+                    count++;
+                }
+
+                if (!s.rutas) continue;
+                for (const p of s.rutas) {
+                    if (count >= MAX_RESULTS) break;
+                    const pName = p.nombre_ruta || p.title || '';
+
+                    // Match Rutas
+                    if (pName.toLowerCase().includes(query)) {
+                        results.push({ type: 'RUTA', title: pName, meta: sName, obj: p, parent: sName });
+                        count++;
+                    }
+
+                    if (!p.cursos) continue;
+                    for (const c of p.cursos) {
+                        if (count >= MAX_RESULTS) break;
+                        const cName = c.title || c.nombre || '';
+
+                        // Match Cursos
+                        if (cName.toLowerCase().includes(query)) {
+                            results.push({ type: 'CURSO', title: cName, meta: pName, obj: c, parent: sName });
+                            count++;
+                        }
+                    }
+                }
+            }
+
+            results.sort((a, b) => {
+                const wt = { 'ESCUELA': 1, 'RUTA': 2, 'CURSO': 3 };
+                return wt[a.type] - wt[b.type];
+            });
+
+            renderCatalogSearchResults(results);
+        }
+
+        function renderCatalogSearchResults(results) {
+            const resBox = document.getElementById('catalogSearchResults');
+            if (results.length === 0) {
+                resBox.innerHTML = '<div class="p-6 text-center text-slate-500 text-sm font-medium">No se encontraron coincidencias</div>';
+                return;
+            }
+
+            let html = '';
+            results.forEach(r => {
+                let badgeColor = '';
+                if (r.type === 'ESCUELA') badgeColor = 'bg-blue-500/20 text-blue-400 border-blue-500/20';
+                else if (r.type === 'RUTA') badgeColor = 'bg-purple-500/20 text-purple-400 border-purple-500/20';
+                else badgeColor = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/20';
+
+                let safeTitle = r.title.replace(/'/g, "\\'");
+                let onClickAction = '';
+
+                if (r.type === 'ESCUELA') {
+                    onClickAction = `renderCatalogPathsBySearch('${safeTitle}')`;
+                } else if (r.type === 'RUTA') {
+                    const safeParent = r.parent.replace(/'/g, "\\'");
+                    onClickAction = `renderCatalogCoursesBySearch('${safeTitle}', '${safeParent}')`;
+                } else {
+                    onClickAction = `downloadFromCatalog('${r.obj.url || ''}', '${r.obj.slug || ''}')`;
+                }
+
+                html += `
+            <div onclick="clearCatalogSearch(); window.scrollTo(0, 0); ${onClickAction}" class="flex items-center justify-between p-3 hover:bg-white/5 cursor-pointer rounded-xl transition-colors group">
+                <div class="flex-1 min-w-0 pr-4">
+                    <h4 class="text-xs font-bold text-slate-200 group-hover:text-white truncate">${r.title}</h4>
+                    <p class="text-[10px] text-slate-500 truncate mt-0.5 uppercase tracking-wider">${r.type === 'CURSO' ? 'En: ' : ''}${r.meta}</p>
+                </div>
+                <div class="shrink-0 flex items-center">
+                    <span class="text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded border ${badgeColor}">${r.type}</span>
+                </div>
+            </div>
+        `;
+            });
+
+            resBox.innerHTML = html;
+        }
+
+        // Helpers for dropdown teleportation
+        function renderCatalogPathsBySearch(schoolTitle) {
+            if (!catalogCache) return;
+            const s = catalogCache.schools.find(x => (x.nombre || x.title) === schoolTitle);
+            if (s) renderCatalogPaths(s.rutas || [], s.nombre || s.title, catalogCache.schools);
+        }
+
+        function renderCatalogCoursesBySearch(pathTitle, schoolTitle) {
+            if (!catalogCache) return;
+            const s = catalogCache.schools.find(x => (x.nombre || x.title) === schoolTitle);
+            if (!s) return;
+            const p = (s.rutas || []).find(x => (x.nombre_ruta || x.title) === pathTitle);
+            if (p) renderCatalogCourses(p.cursos || [], p.nombre_ruta || p.title, schoolTitle);
+        }
+
+        function renderCatalogSchools(schools) {
+            document.getElementById('catalogBreadcrumbs').classList.add('hidden');
+
+            const container = document.getElementById('catalogContent');
+            container.innerHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="schoolsGrid"></div>';
+
+            const grid = document.getElementById('schoolsGrid');
+
+            schools.forEach((s) => {
+                const el = document.createElement('div');
+                el.className = 'group bg-[#1a1a1a] border border-white/10 rounded-3xl p-6 cursor-pointer hover:bg-white/5 transition-all hover:-translate-y-1 hover:shadow-2xl hover:border-sky-500/30 overflow-hidden relative';
+                el.onclick = () => renderCatalogPaths(s.rutas || s.paths || [], s.nombre || s.title, schools);
+
+                const emblem = s.emblema_local ? `/api/assets/${s.emblema_local}` : null;
+                const color = s.color || '#38bdf8';
+
+                el.innerHTML = `
+            <div class="flex items-center gap-5 mb-4">
+                <div class="w-16 h-16 rounded-2xl bg-white/5 p-2 flex items-center justify-center border border-white/10 group-hover:border-sky-500/20 transition-all">
+                   ${emblem ? `<img src="${emblem}" class="w-full h-full object-contain" onerror="this.src='https://static.platzi.com/static/images/platzi-logo-symbol.a1ba2e33d26f.png'">` : `<div class="font-black text-2xl uppercase" style="color:${color}">${(s.nombre || s.title).charAt(0)}</div>`}
+                </div>
+                <div class="min-w-0">
+                    <h3 class="font-black text-lg leading-tight truncate text-white">${s.nombre || s.title}</h3>
+                    <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest mt-1">${(s.rutas || s.paths || []).length} Rutas</p>
+                </div>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, transparent, ${color}22, transparent)"></div>
+        `;
+                grid.appendChild(el);
+            });
+        }
+
+        function renderCatalogPaths(paths, schoolName, schoolsData) {
+            const breadcrumbs = document.getElementById('catalogBreadcrumbs');
+            breadcrumbs.classList.remove('hidden');
+            breadcrumbs.innerHTML = `
+        <span class="cursor-pointer hover:text-white transition flex items-center gap-1" onclick="renderCatalogSchools(catalogCache.schools)">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Escuelas
+        </span>
+        <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
+        <span class="text-white font-bold">${schoolName}</span>
+    `;
+            lucide.createIcons();
+
+            const container = document.getElementById('catalogContent');
+            container.innerHTML = '<div class="space-y-4" id="pathsList"></div>';
+            const list = document.getElementById('pathsList');
+
+            if (paths.length === 0) {
+                list.innerHTML = '<p class="text-center text-slate-500 py-10">No hay rutas disponibles en esta escuela.</p>';
+                return;
+            }
+
+            paths.forEach(p => {
+                const el = document.createElement('div');
+                el.className = 'group bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all hover:pl-8 hover:border-sky-500/20';
+                el.onclick = () => renderCatalogCourses(p.cursos || p.courses || [], p.nombre_ruta || p.title, schoolName);
+
+                el.innerHTML = `
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-400 opacity-50 group-hover:opacity-100 transition-opacity">
+                    <i data-lucide="route" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg text-slate-200 group-hover:text-white transition-colors">${p.nombre_ruta || p.title}</h4>
+                    <p class="text-xs text-slate-500 font-medium">${(p.cursos || p.courses || []).length} Cursos estructurados</p>
+                </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-6 h-6 text-slate-700 group-hover:text-sky-400 group-hover:translate-x-1 transition-all"></i>
+        `;
+                list.appendChild(el);
+            });
+            lucide.createIcons();
+        }
+
+        function openSyllabus(slug) {
+            window.location.hash = `curso/${slug}`;
+        }
+
+        function cargarVistaCurso(slug) {
+            switchView('curso');
+
+            const content = document.getElementById('cursoContenido');
+            const titleEl = document.getElementById('cursoTitulo');
+            const metaEl = document.getElementById('cursoMeta');
+            const logoEl = document.getElementById('cursoLogo');
+
+            content.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-20 space-y-4">
+                    <div class="w-10 h-10 border-4 border-sky-500/30 border-t-sky-500 rounded-full animate-spin"></div>
+                    <p class="text-sm text-slate-500 font-medium">Buscando contenido del curso...</p>
+                </div>
+            `;
+
+            let course = null;
+            let schoolName = "";
+
+            if (catalogCache && catalogCache.schools) {
+                for (const s of catalogCache.schools) {
+                    for (const p of (s.rutas || [])) {
+                        const found = (p.cursos || []).find(c => (c.slug === slug || c.id === slug));
+                        if (found) { course = found; schoolName = s.nombre || s.title; break; }
+                    }
+                    if (course) break;
+                }
+            }
+            if (!course && allCourses && allCourses[slug]) {
+                course = { slug, title: allCourses[slug].title, level: allCourses[slug].level };
+            }
+
+            titleEl.textContent = (course && (course.title || course.nombre)) || slug;
+            metaEl.textContent = schoolName ? `Escuela de ${schoolName}` : 'Cargando...';
+
+            let badge = (course && course.badge_local) ? `/api/assets/${course.badge_local}` : FALLBACK_LOGO_SVG;
+            logoEl.innerHTML = `<img src="${badge}" class="w-full h-full object-contain" onerror="this.src='${FALLBACK_LOGO_SVG}'">`;
+
+            fetch(`/api/syllabus/${slug}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'cached' || data.status === 'ok') {
+                        const info = data.data;
+                        const metaParts = [];
+                        if (schoolName) metaParts.push(`Escuela de ${schoolName}`);
+                        if (info.total_lessons) metaParts.push(`${info.total_lessons} lecciones`);
+                        if (info.total_duration) metaParts.push(info.total_duration);
+                        metaEl.textContent = metaParts.join(' • ');
+                        renderSyllabusDetails(info.chapters);
+                    } else if (data.status === 'not_found') {
+                        content.innerHTML = `
+                            <div class="flex flex-col items-center justify-center py-20 space-y-4 text-center">
+                                <div class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl">🔍</div>
+                                <p class="text-slate-300 font-semibold">Syllabus no disponible en caché</p>
+                                <p class="text-slate-500 text-sm max-w-sm">Ejecuta el crawler para pre-cargar los syllabus:<br>
+                                <code class="mt-2 inline-block bg-white/5 px-3 py-1 rounded text-emerald-400 text-xs font-mono">python scripts/syllabus_crawler.py</code></p>
+                            </div>
+                        `;
+                    } else {
+                        content.innerHTML = `<div class="text-center py-20 text-slate-500">Error al cargar el syllabus.</div>`;
+                    }
+                })
+                .catch(() => {
+                    content.innerHTML = `<div class="text-center py-20 text-slate-500">Error de conexión al servidor.</div>`;
+                });
+        }
+
+        function volverAlCatalogo() {
+            window.location.hash = 'catalogo';
+        }
+
+        function renderSyllabusDetails(chapters) {
+            const content = document.getElementById('cursoContenido');
+            let html = '';
+
+            chapters.forEach((ch, idx) => {
+                html += `
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-sky-400">${idx + 1}</span>
+                            <h4 class="text-base font-bold text-white uppercase tracking-tight">${ch.title}</h4>
+                        </div>
+                        <div class="grid grid-cols-1 gap-2 ml-11">
+                            ${ch.units.map(u => `
+                                <div class="group flex items-center justify-between p-3 rounded-xl bg-white/[.02] border border-white/5 hover:bg-white/[.04] hover:border-white/10 transition cursor-default">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="play-circle" class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition"></i>
+                                        <span class="text-sm text-slate-300 group-hover:text-white transition">${u.title}</span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-slate-600 font-mono">${u.duration || ''}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            content.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function closeSyllabusModal() {
+            document.getElementById('syllabusModal').classList.add('hidden');
+        }
+
+        function renderCatalogCourses(courses, pathName, schoolName) {
+            const breadcrumbs = document.getElementById('catalogBreadcrumbs');
+            breadcrumbs.innerHTML = `
+        <span class="cursor-pointer hover:text-white transition" onclick="renderCatalogSchools(catalogCache.schools)">Escuelas</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
+        <span class="cursor-pointer hover:text-white transition" onclick="renderCatalogPaths(catalogCache.schools.find(s=> (s.nombre||s.title) ==='${schoolName}')?.rutas || [], '${schoolName}', catalogCache.schools)">${schoolName}</span>
+        <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
+        <span class="text-white font-bold">${pathName}</span>
+    `;
+            lucide.createIcons();
+
+            const container = document.getElementById('catalogContent');
+            container.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="catCoursesGrid"></div>';
+            const grid = document.getElementById('catCoursesGrid');
+
+            if (courses.length === 0) {
+                container.innerHTML = '<p class="text-center text-slate-500 py-20">No hay cursos listados en esta ruta.</p>';
+                return;
+            }
+
+            courses.forEach(c => {
+                const slug = c.slug || (c.title || c.nombre || '').toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, '');
+                const url = c.url || `https://platzi.com/cursos/${slug}`;
+                const isDownloaded = !!c.downloaded || (window.allCourses && !!window.allCourses[slug]);
+
+                const thumb = c.thumbnail_local ? `/api/assets/${c.thumbnail_local}` : null;
+                let badge = c.badge_local ? `/api/assets/${c.badge_local}` : null;
+
+                if (!badge) badge = FALLBACK_LOGO_SVG;
+
+                const el = document.createElement('div');
+                el.className = 'group bg-[#1a1a1a] border border-white/10 rounded-3xl overflow-hidden flex flex-col transition-all hover:border-sky-500/30 hover:shadow-2xl';
+
+                el.innerHTML = `
+            <div class="aspect-video bg-[#1e2235] relative overflow-hidden">
+                ${thumb ? `<img src="${thumb}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" onerror="this.outerHTML='<div class=\\'w-full h-full flex items-center justify-center bg-slate-800 text-slate-600 text-[10px] font-bold\\'>SIN MINIATURA</div>'">` : `<div class="w-full h-full flex items-center justify-center bg-slate-800 text-slate-600 text-[10px] font-bold">SIN MINIATURA</div>`}
+                ${isDownloaded ? '<div class="absolute top-4 right-4 bg-[#00f2a1] text-black text-[10px] font-black px-2.5 py-1.5 tracking-wider uppercase rounded-lg shadow-lg">Descargado</div>' : ''}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+            </div>
+            <div class="p-6 flex-1 flex flex-col relative">
+                <div class="absolute -top-8 right-6 w-14 h-14 rounded-full bg-[#1a1a1a] p-2 border border-white/10 shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <img src="${badge}" class="w-full h-full object-contain rounded-full" onerror="this.style.display='none'">
+                </div>
+                
+                <div class="flex items-center gap-2 mb-3">
+                    ${(() => {
+                        const lvl = c.level || '';
+                        const cls = lvl === 'Avanzado' ? 'bg-purple-500/15 text-purple-400 border-purple-500/20'
+                            : lvl === 'Intermedio' ? 'bg-sky-500/15 text-sky-400 border-sky-500/20'
+                                : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20';
+                        return lvl ? `<span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${cls}">${lvl}</span>` : '';
+                    })()}
+                </div>
+                
+                <h4 class="font-bold text-md leading-tight mb-5 flex-1 line-clamp-2 text-slate-100 group-hover:text-white transition-colors">${c.title || c.nombre}</h4>
+                
+                <div class="flex gap-2 mt-auto">
+                    <button onclick="downloadFromCatalog('${url}', '${slug}')" class="flex-1 bg-[#00f2a1] text-black text-xs font-black py-3 rounded-xl hover:brightness-110 transition-all shadow-lg shadow-[#00f2a1]/10 active:scale-95 uppercase tracking-widest">${isDownloaded ? '▶ Abrir' : 'Descargar'}</button>
+                    <button onclick="openSyllabus('${slug}')" class="px-4 bg-white/5 border border-white/10 text-slate-400 rounded-xl hover:bg-white/10 hover:text-white transition" title="Ver Lecciones">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+                grid.appendChild(el);
+            });
+            lucide.createIcons();
+        }
+
+        function downloadFromCatalog(url, slug) {
+            if (allCourses[slug]) {
+                switchView('cursos');
+                renderPlaylist(slug);
+                return;
+            }
+
+            document.getElementById('courseUrl').value = url;
+            switchView('descargar');
+            startDownload(false);
+        }
+    </script>
+    <!-- Syllabus Modal -->
+    <div id="syllabusModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-[#0a0c10]/80 backdrop-blur-md" onclick="closeSyllabusModal()"></div>
+        <div
+            class="bg-[#141822] border border-white/10 rounded-3xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl relative z-10 animate-scale-up">
+            <div class="flex items-center justify-between p-6 border-b border-white/5 bg-white/[.02]">
+                <div class="flex items-center gap-4">
+                    <div id="syllabusLogo"
+                        class="w-12 h-12 rounded-full bg-[#1e2235] p-2 border border-white/10 flex items-center justify-center">
+                    </div>
+                    <div>
+                        <h3 id="syllabusTitle" class="text-xl font-bold text-white tracking-tight">Cargando Syllabus...
+                        </h3>
+                        <p id="syllabusMeta" class="text-xs text-slate-500 font-medium"></p>
+                    </div>
+                </div>
+                <button onclick="closeSyllabusModal()"
+                    class="p-2.5 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="syllabusContent" class="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-custom">
+                <!-- Syllabus content here -->
+            </div>
+            <div class="p-4 border-t border-white/5 flex justify-end bg-white/[.01]">
+                <button onclick="closeSyllabusModal()"
+                    class="px-6 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sm font-semibold transition">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
