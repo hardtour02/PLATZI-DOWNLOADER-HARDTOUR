@@ -159,13 +159,24 @@ class AsyncPlatzi:
             # Use polling to check for successful login instead of brittle CSS modules
             for _ in range(60):
                 await page.wait_for_timeout(2000)
-                # Check if URL changed away from login, or if a generic avatar/profile element is present
-                avatar = await page.query_selector('img[alt*="Avatar"], img[src*="avatar"], a[href*="/mi-perfil"]')
-                if "login" not in page.url or avatar:
-                    self.loggedin = True
-                    await self._save_state()
-                    Logger.info("Logged in successfully")
-                    return
+                try:
+                    if "login" not in page.url:
+                        self.loggedin = True
+                        await self._save_state()
+                        Logger.info("Logged in successfully (URL changed)")
+                        return
+                    
+                    avatar = await page.query_selector('img[alt*="Avatar"], img[src*="avatar"], a[href*="/mi-perfil"]')
+                    if avatar:
+                        self.loggedin = True
+                        await self._save_state()
+                        Logger.info("Logged in successfully (Avatar found)")
+                        return
+                except Exception as e:
+                    # Es muy común que al navegar de /login a /home el contexto DOM se destruya un instante
+                    if "Execution context was destroyed" in str(e) or "closed" in str(e):
+                        continue
+                    Logger.info(f"Polling retry... {e}")
             
             raise Exception("Timeout 120000ms exceeded while waiting for login.")
         except Exception as e:
