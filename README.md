@@ -18,14 +18,14 @@ Herramienta profesional para la descarga y gestión de cursos de Platzi, optimiz
 
 ---
 
-## 🎯 Mejoras de la Versión HARDTOUR
+## 🎯 Características Core - HARDTOUR Edition
 
-Esta versión ha sido completamente reconstruida y optimizada:
+Diseñado íntegramente desde cero bajo una arquitectura **Senior Full Stack**, este sistema ha sido concebido para ofrecer una robustez y eficiencia superiores:
 
-- **Arquitectura Modular (FastAPI)**: Código backend desacoplado en routers especializados.
-- **Independencia Offline**: Fuentes, iconos y librerías CSS localizadas para funcionar sin internet.
-- **Gestión Avanzada de Rutas**: Sistema preparado para ser portable entre equipos sin configuraciones adicionales.
-- **Limpieza y Orden**: Todos los procesos de mantenimiento centralizados bajo las mejores prácticas Senior.
+- **Arquitectura Modular Nativa (FastAPI)**: Orquestación completa del backend mediante routers especializados para una escalabilidad sin precedentes.
+- **Ecosistema 100% Offline-First**: Implementación nativa de recursos críticos (fuentes, iconos y librerías) para una operatividad total sin dependencia de conexiones externas.
+- **Portabilidad Universal Inteligente**: Sistema de gestión de rutas internas diseñado para garantizar un funcionamiento inmediato en cualquier hardware.
+- **Estándares de Desarrollo Senior**: Flujos de trabajo, limpieza de código y procesos de mantenimiento centralizados bajo los más altos estándares profesionales.
 
 ---
 
