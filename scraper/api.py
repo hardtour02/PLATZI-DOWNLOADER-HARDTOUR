@@ -147,22 +147,27 @@ class AsyncPlatzi:
         # If credentials provided, attempt auto-fill
         if username and passwd:
             try:
+                await page.wait_for_selector('input[name="email"]', timeout=30000)
                 await page.fill('input[name="email"]', username)
                 await page.fill('input[name="password"]', passwd)
                 await page.click('button[type="submit"]')
-            except Exception:
-                Logger.info("Auto-fill failed, please login manually")
+            except Exception as e:
+                Logger.info(f"Auto-fill failed, please login manually. Error: {e}")
 
         Logger.info("Waiting for login to complete...")
         try:
-            avatar = await page.wait_for_selector(
-                ".styles-module_Menu__Avatar__FTuh-",
-                timeout=2 * 60 * 1000,
-            )
-            if avatar:
-                self.loggedin = True
-                await self._save_state()
-                Logger.info("Logged in successfully")
+            # Use polling to check for successful login instead of brittle CSS modules
+            for _ in range(60):
+                await page.wait_for_timeout(2000)
+                # Check if URL changed away from login, or if a generic avatar/profile element is present
+                avatar = await page.query_selector('img[alt*="Avatar"], img[src*="avatar"], a[href*="/mi-perfil"]')
+                if "login" not in page.url or avatar:
+                    self.loggedin = True
+                    await self._save_state()
+                    Logger.info("Logged in successfully")
+                    return
+            
+            raise Exception("Timeout 120000ms exceeded while waiting for login.")
         except Exception as e:
             Logger.error(f"Login failed: {e}")
             raise Exception("Login failed")

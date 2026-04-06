@@ -27,7 +27,8 @@ async def login(data: Dict):
         return JSONResponse({"status": "error", "message": "Email and password required"}, status_code=400)
     
     try:
-        async with AsyncPlatzi(headless=True) as platzi:
+        # Lanza el modo headed (ventana visible) para poder resolver captchas o llenar manual
+        async with AsyncPlatzi(headless=False) as platzi:
             await platzi.login(email=email, password=password)
         return {"status": "success", "message": "Login successful"}
     except Exception as e:
