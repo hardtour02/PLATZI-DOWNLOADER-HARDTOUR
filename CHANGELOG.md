@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.1.1 (2026-04-07)
+
+### Fix
+
+* fix: handle execution context destroyed error during login navigation ([`17bae9c`](https://github.com/hardtour02/PLATZI-DOWNLOADER-HARDTOUR/commit/17bae9ce81121dab8d2a09278c88fef05128fac4))
+
+* fix: make login window visible to bypass captchas and wait for precise email selectors ([`53ef72a`](https://github.com/hardtour02/PLATZI-DOWNLOADER-HARDTOUR/commit/53ef72a40a3f579b9fad82701ba511660303f162))
+
+### Unknown
+
+* Setup: Documenting Stitch Skills ecosystem in the repository. ([`6817414`](https://github.com/hardtour02/PLATZI-DOWNLOADER-HARDTOUR/commit/68174147014ae9a8531124688ec41a9ca73fef1b))
+
+* Refactor: Unified course download paths to data/courses and prioritized project data hierarchy. Updated .gitignore for consistent exclusion rules. ([`ec519a5`](https://github.com/hardtour02/PLATZI-DOWNLOADER-HARDTOUR/commit/ec519a587ebc6cb95c4a3932c16f2438989cd49a))
+
 ## v0.1.0 (2026-04-06)
 
 ### Chore
