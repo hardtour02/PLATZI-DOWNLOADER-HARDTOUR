@@ -26,6 +26,7 @@ from backend.app.api.courses import router as courses_router
 from backend.app.api.catalog import router as catalog_router
 from backend.app.api.drive import router as drive_router
 from backend.app.api.assets import router as assets_router
+from backend.app.api.progress import router as progress_router
 
 async def preload_catalog_if_needed():
     """On startup: if catalog.json is missing but we have a Platzi session, scrape the catalog."""
@@ -61,8 +62,7 @@ templates = Jinja2Templates(directory=str(FRONTEND_DIR))
 connected_clients: List[WebSocket] = []
 
 # Mount Courses directory for video streaming
-# Use data/courses as the source for the /videos route
-COURSES_PATH = Path("data/courses").absolute()
+COURSES_PATH = Path("data/courses").absolute() # Updated path
 if not COURSES_PATH.exists():
     COURSES_PATH.mkdir(parents=True, exist_ok=True)
 app.mount("/videos", StaticFiles(directory=str(COURSES_PATH)), name="videos")
@@ -99,6 +99,7 @@ app.include_router(courses_router)
 app.include_router(catalog_router)
 app.include_router(drive_router)
 app.include_router(assets_router)
+app.include_router(progress_router)
 
 @app.get("/favicon.ico")
 async def favicon():
