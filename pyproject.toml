@@ -2,12 +2,12 @@
 name = "platzi"
 version = "0.1.1"
 description = "Download your courses from platzi"
-authors = ["ivansaul <ivansaul@no-reply.com>"]
+authors = ["HARDTOUR <hardtour02@no-reply.com>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/ivansaul/platzi-downloader"
-repository = "https://github.com/ivansaul/platzi-downloader"
-keywords = ["Platzi", "downloader", "courses"]
+homepage = "https://github.com/hardtour02/PLATZI-DOWNLOADER-HARDTOUR"
+repository = "https://github.com/hardtour02/PLATZI-DOWNLOADER-HARDTOUR"
+keywords = ["Platzi", "downloader", "courses", "hardtour"]
 
 classifiers = [
     "Programming Language :: Python :: 3",

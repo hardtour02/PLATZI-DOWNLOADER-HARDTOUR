@@ -1,0 +1,24 @@
+<section id="view-curso" class="view-section">
+            <div class="mb-8">
+                <button onclick="volverAlCatalogo()"
+                    class="flex items-center gap-2 text-slate-400 hover:text-white transition mb-4">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span class="text-sm font-bold">Volver al Catálogo</span>
+                </button>
+                <div class="flex items-start gap-6">
+                    <div id="cursoLogo"
+                        class="w-16 h-16 rounded-2xl bg-[#1e2235] p-3 border border-white/10 flex items-center justify-center flex-shrink-0">
+                    </div>
+                    <div class="flex-1">
+                        <h2 id="cursoTitulo" class="text-3xl font-black mb-2">Cargando...</h2>
+                        <p id="cursoMeta" class="text-slate-500 text-sm"></p>
+                    </div>
+                </div>
+            </div>
+            <div id="cursoContenido" class="space-y-8">
+                <div class="py-20 text-center opacity-20">
+                    <i data-lucide="loader" class="w-16 h-16 mx-auto mb-4 animate-spin"></i>
+                    <p class="text-sm font-bold">Cargando syllabus...</p>
+                </div>
+            </div>
+        </section>

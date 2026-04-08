@@ -5,149 +5,70 @@
 <div align="center">
 
 <h1 style="border-bottom: none">
-    <b><a href="#">Platzi Downloader</a></b>
+    <b><a href="#">PLATZI DOWNLOADER - HARDTOUR</a></b>
 </h1>
 
-Es una herramienta de línea de comandos para descargar cursos directamente desde la terminal. Utiliza  ***`Python`*** y ***`Playwright`*** para automatizar el proceso de descarga y proporciona una interfaz de usuario amigable.
+Herramienta profesional para la descarga y gestión de cursos de Platzi, optimizada con una arquitectura **Senior Full Stack** modular. Funciona de manera **Offline-first**, localizando todos los activos críticos para su ejecución sin depender de internet una vez descargados los cursos.
 
-![GitHub repo size](https://img.shields.io/github/repo-size/ivansaul/platzi-downloader?style=social)
-![GitHub stars](https://img.shields.io/github/stars/ivansaul/platzi-downloader)
-![GitHub forks](https://img.shields.io/github/forks/ivansaul/platzi-downloader)
+![GitHub repo size](https://img.shields.io/github/repo-size/hardtour02/PLATZI-DOWNLOADER-HARDTOUR?style=social)
+![GitHub stars](https://img.shields.io/github/stars/hardtour02/PLATZI-DOWNLOADER-HARDTOUR)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=social)](https://opensource.org/licenses/MIT)
-[![Discord](https://img.shields.io/discord/1244611850700849183?style=social&logo=discord)](https://discord.gg/tDvybtJ7y9)
 
 </div>
 
 ---
 
-## Instalación | Actualización
+## 🎯 Características Core - HARDTOUR Edition
 
-Para [`instalar` | `actualizar` ], ejecuta el siguiente comando en tu terminal:
+Diseñado íntegramente desde cero bajo una arquitectura **Senior Full Stack**, este sistema ha sido concebido para ofrecer una robustez y eficiencia superiores:
+
+- **Arquitectura Modular Nativa (FastAPI)**: Orquestación completa del backend mediante routers especializados para una escalabilidad sin precedentes.
+- **Ecosistema 100% Offline-First**: Implementación nativa de recursos críticos (fuentes, iconos y librerías) para una operatividad total sin dependencia de conexiones externas.
+- **Portabilidad Universal Inteligente**: Sistema de gestión de rutas internas diseñado para garantizar un funcionamiento inmediato en cualquier hardware.
+- **Estándares de Desarrollo Senior**: Flujos de trabajo, limpieza de código y procesos de mantenimiento centralizados bajo los más altos estándares profesionales.
+
+---
+
+## 🚀 Instalación y Uso
+
+### 1. Requisitos Previos
+
+Asegúrate de tener instalado **Python 3.10+** y **FFmpeg**.
 
 ```console
-pip install -U platzi
+# En Windows (via PowerShell)
+winget install ffmpeg
 ```
 
-Instala las dependencias de `playwright`:
+### 2. Preparación
+
+Instala las dependencias y el navegador automatizado:
 
 ```console
+pip install -e .
 playwright install chromium
 ```
 
-> [!IMPORTANT]
-> El script utiliza ***`ffmpeg`***, como un subproceso, así que asegúrate de tener instalado y actualizado.
+### 3. Ejecución
 
-<details>
+Utiliza los lanzadores directos incluidos:
 
-<summary>Tips & Tricks</summary>
+- **Windows**: `start_windows.bat`
+- **Linux**: `bash start_linux.sh`
 
-## FFmpeg Instalación
+---
 
-### Ubuntu / Debian
+## 💡 Guía Rápida
 
-```console
-sudo apt install ffmpeg -y
-```
+- **Iniciar Sesión**: Accede desde el panel lateral para vincular tu cuenta de Platzi.
+- **Explorar Catálogo**: Navega por escuelas y rutas en la pestaña **"Catálogo"** para encontrar tus cursos favoritos.
+- **Sincronización Inteligente**: Al hacer clic en el botón **Descargar** de cualquier curso en el catálogo, el sistema capturará automáticamente el enlace y lo transferirá al módulo de descarga sin intervención manual.
+- **Modo Offline**: Una vez completado, disfruta de tus clases en la pestaña **"Mis Cursos"** sin necesidad de conexión externa.
 
-### Arch Linux
-
-```console
-sudo pacman -S ffmpeg
-```
-
-### Windows [[Tutorial]][ffmpeg-youtube]
-
-Puedes descargar la versión de `ffmpeg` para Windows desde [aquí][ffmpeg]. o algún gestor de paquetes como [`Scoop`][scoop] o [`Chocolatey`][chocolatey].
-
-```console
-scoop install ffmpeg
-```
-
-</details>
-
-## Guía de uso
-
-### Iniciar Sesión
-
-Para iniciar sesión en Platzi, usa el comando login. Esto abrirá una ventana de navegador para autenticarte e iniciar sesión en Platzi.
-
-```console
-platzi login
-```
-
-### Cerrar Sesión
-
-Para cerrar sesión en Platzi y borrar tu sesión del almacenamiento local, usa el comando `logout`.
-
-```console
-platzi logout
-```
-
-### Descargar un Curso
-
-Para descargar un curso de Platzi, usa el comando download seguido de la URL del curso que deseas descargar. La URL puede encontrarse en la barra de direcciones al visualizar la página del curso en Platzi.
-
-```console
-platzi download URL [OPTIONS]
-
-OPTIONS:
-  --quality / -q  Specifies the video quality (default: max). Options: [1080|720].
-  --overwrite / -w  Overwrite files if exist.
-```
-
-Ejemplos:
-
-```console
-platzi download https://platzi.com/cursos/python
-```
-
-```console
-platzi download https://platzi.com/cursos/python/ -q 720
-```
-
-```console
-platzi download https://platzi.com/cursos/python -w
-```
-
-### Borrar Caché
-
-Para borrar la caché de Platzi, usa el comando `clear-cache`.
-
-```console
-platzi clear-cache
-```
-
-> [!IMPORTANT]
-> Asegúrate de estar logueado antes de intentar descargar los cursos.
-
-<br>
-
-> [!TIP]
-> Si por algún motivo se cancela la descarga, vuelve a ejecutar `platzi download <url-del-curso>` para retomar la descarga.
-
-<br>
-
-> [!TIP]
-> Si obtienes algún error relacionado a `m3u8`o `ts` como por ejemplo; `Error downloading from .ts url` o `Error downloading m3u8`, elimina la carpeta temporal `.tmp` y vuelve a ejecutar el comando.
-
-<br>
-
-> [!TIP]
-> Luego de actualizar el script u obtener algún error inesperado se recomienda limpiar la caché antes de volver a intentar descargar el curso. Puedes hacerlo ejecutando el comando `platzi clear-cache`.
-
-## Contribuidores
-
-<a href="https://github.com/ivansaul/vaporz/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=ivansaul/platzi-downloader" />
-</a>
+---
 
 ## **Aviso de Uso**
 
-Este proyecto se realiza con fines exclusivamente educativos y de aprendizaje. El código proporcionado se ofrece "tal cual", sin ninguna garantía de su funcionamiento o idoneidad para ningún propósito específico.
+Este proyecto se realiza con fines exclusivamente educativos. El código se ofrece "tal cual". Utilízalo de manera responsable y dentro de los términos de servicio de las plataformas educativas.
 
-No me hago responsable por cualquier mal uso, daño o consecuencia que pueda surgir del uso de este proyecto. Es responsabilidad del usuario utilizarlo de manera adecuada y dentro de los límites legales y éticos.
-
-[ffmpeg]: https://ffmpeg.org
-[chocolatey]: https://community.chocolatey.org
-[scoop]: https://scoop.sh
-[ffmpeg-youtube]: https://youtu.be/JR36oH35Fgg?si=Gerco7SP8WlZVaKM
+Este repositorio es una evolución personalizada y refinada basada en trabajos iniciales de la comunidad.

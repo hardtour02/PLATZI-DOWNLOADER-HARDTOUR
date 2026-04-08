@@ -1,0 +1,73 @@
+/* 
+  PlatziPVP Design System - Carbon Neon
+  Variables CSS Base
+*/
+:root {
+  /* Colors */
+  --color-bg: #0A0A0A;
+  --color-surface-1: #111111;
+  --color-surface-2: #1A1A1A;
+  --color-surface-3: #222222;
+  --color-border: #2A2A2A;
+  
+  --color-primary: #00F2A1;
+  --color-primary-dim: rgba(0,242,161,0.08);
+  --color-secondary: #38BDF8;
+  --color-accent: #A78BFA;
+  
+  /* Text */
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #475569;
+  
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  
+  /* Effects */
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+  --glow-primary: 0 0 20px rgba(0,242,161,0.25);
+}
+
+/* Base resets applying the design system */
+body {
+  background-color: var(--color-bg);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Utility overrides for transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

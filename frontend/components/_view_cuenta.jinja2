@@ -1,0 +1,100 @@
+<section id="view-cuenta" class="view-section pt-10">
+            <div class="max-w-2xl mx-auto">
+                <header class="mb-10 text-center">
+                    <h1 class="text-4xl font-black mb-3 italic tracking-tight uppercase">Mi Cuenta</h1>
+                    <p class="text-slate-400">Gestiona tus conexiones y preferencias del sistema.</p>
+                </header>
+
+                <div class="grid gap-6">
+                    <!-- PLATZI AUTH -->
+                    <div
+                        class="bg-[#1a1a1a] border border-white/10 rounded-2xl p-8 shadow-2xl overflow-hidden relative">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-xl font-bold flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-[#00f2a1]/20 flex items-center justify-center">
+                                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#00f2a1]"></i>
+                                    </div>
+                                    Sesión de Platzi
+                                </h3>
+                                <p class="text-sm text-slate-500 mt-1">Necesario para descargar lecciones bloqueadas.
+                                </p>
+                            </div>
+                            <div id="platziStatusBadge"
+                                class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"></div>
+                        </div>
+
+                        <div id="platziLoggedView" class="hidden">
+                            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
+                                <div class="w-12 h-12 rounded-full bg-sky-500/20 flex items-center justify-center">
+                                    <i data-lucide="user-check" class="w-6 h-6 text-sky-400"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div id="platziUserEmail" class="text-sm font-bold truncate"></div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Cuenta
+                                        Activa</div>
+                                </div>
+                                <button onclick="logout()"
+                                    class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-lg transition border border-red-500/20">
+                                    Cerrar Sesión
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="platziLoginView" class="space-y-4 pt-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="email" id="email" placeholder="Correo electrónico"
+                                    class="glass-input text-sm">
+                                <input type="password" id="password" placeholder="Contraseña"
+                                    class="glass-input text-sm">
+                            </div>
+                            <button id="loginBtn" onclick="performLogin()"
+                                class="w-full bg-sky-500 hover:bg-sky-400 text-white font-bold p-3 rounded-xl text-sm transition shadow-lg shadow-sky-500/20">
+                                Conectar con Platzi
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- GDRIVE AUTH -->
+                    <div class="bg-[#1a1a1a] border border-white/10 rounded-2xl p-8 shadow-2xl">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-xl font-bold flex items-center gap-2">
+                                    <i data-lucide="cloud" class="w-6 h-6 text-sky-400"></i>
+                                    Google Drive
+                                </h3>
+                                <p class="text-sm text-slate-500 mt-1">Gestiona la sincronización en la nube.</p>
+                            </div>
+                            <div id="driveStatusBadge"
+                                class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"></div>
+                        </div>
+
+                        <div id="driveLoggedView" class="hidden">
+                            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
+                                <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                                    <i data-lucide="cloud-lightning" class="w-6 h-6 text-emerald-400"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div id="driveUserEmail" class="text-sm font-bold truncate"></div>
+                                    <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Espacio
+                                        de Almacenamiento</div>
+                                </div>
+                                <button onclick="disconnectDrive()"
+                                    class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-lg transition border border-red-500/20">
+                                    Desconectar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="driveLoginView" class="text-center py-4">
+                            <button onclick="connectDrive()"
+                                class="bg-white hover:bg-slate-100 text-black font-bold px-8 py-3 rounded-xl text-sm transition flex items-center gap-2 mx-auto shadow-xl">
+                                <img src="/api/assets/assetsmenu/drive_logo.png"
+                                    class="w-5 h-5">
+                                Conectar Google Drive
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>

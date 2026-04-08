@@ -1,0 +1,50 @@
+<nav class="nav-sidebar" style="width: 180px; background: var(--color-surface-1); border-right: 1px solid var(--color-border); position: fixed; top: 0; bottom: 0; left: 0; padding: 24px 16px; display: flex; flex-direction: column; gap: 8px; z-index: 50;">
+    <div class="mb-8 px-2">
+        <h1 class="text-xl font-heading font-bold text-[var(--text-primary)]">
+            <span class="text-[var(--color-primary)]">PLATZI</span>PVP
+        </h1>
+        <p class="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-widest mt-1">Video Downloader</p>
+    </div>
+
+    <div class="space-y-1">
+        <div data-view="catalogo" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium cursor-pointer transition-colors" onclick="switchView('catalogo')" style="color: var(--text-secondary);">
+            <i data-lucide="rocket" style="width: 18px; height: 18px; stroke-width: 1.5px;"></i> Catálogo
+        </div>
+        <div data-view="descargar" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium cursor-pointer transition-colors" onclick="switchView('descargar')" style="color: var(--text-secondary);">
+            <i data-lucide="download-cloud" style="width: 18px; height: 18px; stroke-width: 1.5px;"></i> Descargar
+        </div>
+        <div data-view="cursos" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium cursor-pointer transition-colors" onclick="switchView('cursos')" style="color: var(--text-secondary);">
+            <i data-lucide="library" style="width: 18px; height: 18px; stroke-width: 1.5px;"></i> Cursos
+        </div>
+        <div data-view="drive" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium cursor-pointer transition-colors" onclick="switchView('drive')" style="color: var(--text-secondary);">
+            <i data-lucide="cloud" style="width: 18px; height: 18px; stroke-width: 1.5px;"></i> Drive
+        </div>
+        <div data-view="registro" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium cursor-pointer transition-colors" onclick="switchView('registro')" style="color: var(--text-secondary);">
+            <i data-lucide="activity" style="width: 18px; height: 18px; stroke-width: 1.5px;"></i> Actividad
+        </div>
+    </div>
+
+    <div class="mt-auto space-y-1 border-t border-[var(--color-border)] pt-4 px-1">
+        <div data-view="cuenta" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium cursor-pointer transition-colors" onclick="switchView('cuenta')" style="color: var(--text-secondary);">
+            <i data-lucide="user" style="width: 18px; height: 18px; stroke-width: 1.5px; color: var(--color-secondary);"></i> Mi Cuenta
+        </div>
+        <div class="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] text-sm font-medium cursor-pointer transition-colors hover:bg-[var(--color-surface-2)] hover:text-[var(--text-primary)]" onclick="openFolder()" style="color: var(--text-secondary);">
+            <i data-lucide="folder" style="width: 18px; height: 18px; stroke-width: 1.5px; color: #FBBF24;"></i> Carpeta
+        </div>
+    </div>
+</nav>
+
+<style>
+/* CSS limits to sidebar overrides */
+.nav-item:hover {
+    background: var(--color-surface-2);
+    color: var(--text-primary) !important;
+}
+.nav-item.active {
+    background: var(--color-primary-dim);
+    color: var(--color-primary) !important;
+    border-left: 2px solid var(--color-primary);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+</style>

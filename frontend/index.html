@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Platzi Premium Downloader</title>
     <script src="/assets/assetsmenu/tailwind.min.js"></script>
-    <link href="/assets/assetsmenu/inter.css" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="/assets/carbon-neon.css" rel="stylesheet">
+
     <script src="/assets/assetsmenu/lucide.min.js"></script>
     <style>
         body {
@@ -293,7 +296,7 @@
         }
 
         .main-content {
-            margin-left: 240px;
+            margin-left: 180px;
             padding: 40px 60px;
             min-height: 100vh;
         }
@@ -342,439 +345,29 @@
 
 <body>
     <!-- Navigation Sidebar -->
-    <nav class="nav-sidebar">
-        <div class="mb-10 px-4">
-            <h1 class="text-xl font-black tracking-tighter text-white">PLATZI<span class="text-[#00f2a1]">PVP</span>
-            </h1>
-            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Video Downloader</p>
-        </div>
-
-        <div class="space-y-1">
-            <div data-view="catalogo" class="nav-item active" onclick="switchView('catalogo')">
-                <i data-lucide="rocket" class="w-5 h-5"></i> Catálogo
-            </div>
-            <div data-view="descargar" class="nav-item" onclick="switchView('descargar')">
-                <i data-lucide="download-cloud" class="w-5 h-5"></i> Descargar
-            </div>
-            <div data-view="cursos" class="nav-item" onclick="switchView('cursos')">
-                <i data-lucide="library" class="w-5 h-5"></i> Cursos
-            </div>
-            <div data-view="drive" class="nav-item" onclick="switchView('drive')">
-                <i data-lucide="cloud" class="w-5 h-5"></i> Drive
-            </div>
-            <div data-view="registro" class="nav-item" onclick="switchView('registro')">
-                <i data-lucide="activity" class="w-5 h-5"></i> Actividad
-            </div>
-        </div>
-
-        <div class="mt-auto space-y-2 border-t border-white/10 pt-6 px-2">
-            <div data-view="cuenta" class="nav-item group" onclick="switchView('cuenta')">
-                <i data-lucide="user" class="w-5 h-5 text-sky-400"></i> Mi Cuenta
-            </div>
-            <div class="nav-item group" onclick="openFolder()">
-                <i data-lucide="folder" class="w-5 h-5 text-amber-400"></i> Carpeta Local
-            </div>
-        </div>
-    </nav>
+    {% include 'components/_sidebar.jinja2' %}
 
     <main class="main-content">
         <!-- VIEW: CATÁLOGO -->
-        <section id="view-catalogo" class="view-section active">
-            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-10 gap-6 relative">
-                <div class="shrink-0">
-                    <h2 class="text-3xl font-black mb-2">Catálogo Platzi</h2>
-                    <p class="text-slate-500 text-sm">Explora todas las escuelas, rutas y cursos.</p>
-                </div>
-
-                <div class="w-full lg:max-w-xl relative flex-1 order-last lg:order-none z-50">
-                    <div class="relative group">
-                        <i data-lucide="search"
-                            class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-sky-400 transition-colors"></i>
-                        <input type="text" id="catalogSearchInput" oninput="performCatalogSearch(this.value)"
-                            placeholder="Buscar escuela, ruta o curso..."
-                            class="w-full bg-[#121212] border border-sky-500/30 rounded-xl py-3 pl-11 pr-10 text-sm font-medium text-white placeholder-slate-500 focus:outline-none focus:border-[#00f2a1]/80 focus:shadow-[0_0_15px_rgba(0,242,161,0.15)] transition-all">
-                        <button id="catalogSearchClearBtn" onclick="clearCatalogSearch()"
-                            class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white hidden transition-colors">
-                            <i data-lucide="x" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                    <!-- Dropdown Results -->
-                    <div id="catalogSearchResults"
-                        class="absolute top-full left-0 right-0 mt-2 bg-[#0d0f14] border border-white/10 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] hidden flex-col z-50 max-h-[550px] overflow-y-auto overflow-x-hidden p-2 gap-1 backdrop-blur-3xl">
-                        <!-- Populated dynamic search results -->
-                    </div>
-                </div>
-
-                <button onclick="syncCatalog()" id="syncCatalogBtn"
-                    class="bg-[#00f2a1] hover:brightness-110 text-black font-extrabold px-6 py-3 rounded-xl transition text-sm shadow-lg flex items-center gap-2 shrink-0">
-                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                    Actualizar
-                </button>
-            </div>
-
-            <!-- Breadcrumbs -->
-            <div id="catalogBreadcrumbs"
-                class="hidden flex items-center gap-3 text-xs font-bold text-slate-500 mb-8 px-2 uppercase tracking-widest">
-            </div>
-
-            <!-- Sync Progress Bar -->
-            <div id="catalogSyncProgress"
-                class="hidden bg-[#1a1a1a] border border-[#00f2a1]/20 rounded-2xl p-6 mb-10 shadow-xl">
-                <div class="flex justify-between items-center mb-4">
-                    <span id="catalogSyncDetail" class="text-xs font-bold text-slate-400">Iniciando
-                        sincronización...</span>
-                    <span id="catalogSyncPercent" class="text-xs font-black text-[#00f2a1]">0%</span>
-                </div>
-                <div class="w-full bg-white/5 h-2.5 rounded-full overflow-hidden">
-                    <div id="catalogSyncBar" class="bg-[#00f2a1] h-full transition-all duration-500" style="width: 0%">
-                    </div>
-                </div>
-            </div>
-
-            <div id="catalogContent" class="space-y-12">
-                <!-- Se poblará dinámicamente -->
-                <div class="py-20 text-center opacity-20">
-                    <i data-lucide="rocket" class="w-16 h-16 mx-auto mb-4"></i>
-                    <p class="text-sm font-bold">Cargando catálogo maestro...</p>
-                </div>
-            </div>
-        </section>
+        {% include 'components/_view_catalogo.jinja2' %}
 
         <!-- VIEW: DESCARGAR -->
-        <section id="view-descargar" class="view-section">
-            <div class="mb-10 flex flex-col md:flex-row gap-4 items-center max-w-4xl">
-                <div class="relative flex-1 w-full group">
-                    <i data-lucide="link"
-                        class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-sky-400 transition-colors"></i>
-                    <input type="text" id="courseUrl" placeholder="Pega la URL del curso de Platzi aquí..."
-                        class="w-full bg-[#121212] border border-white/10 rounded-xl py-3.5 pl-11 pr-4 text-sm font-medium text-white placeholder-slate-600 focus:outline-none focus:border-sky-500/50 focus:shadow-[0_0_15px_rgba(56,189,248,0.1)] transition-all">
-                </div>
-                <button onclick="startDownload()"
-                    class="bg-[#00f2a1] hover:brightness-110 text-black font-extrabold px-10 py-3.5 h-full rounded-xl transition text-sm shadow-[0_10px_20px_-10px_rgba(0,242,161,0.3)] flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                    Descargar
-                </button>
-            </div>
-
-            <!-- Active download progress -->
-            <div id="activeProgress"
-                class="hidden bg-[#1a1a1a] border border-[#00f2a1]/20 rounded-2xl p-8 mb-10 shadow-2xl overflow-hidden relative">
-                <div id="progressError"
-                    class="hidden bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-4 rounded-xl mb-6 flex items-center gap-3">
-                    <i data-lucide="alert-circle" class="w-5 h-5"></i>
-                    <span id="progressErrorMsg"></span>
-                </div>
-                <div class="flex justify-between items-center mb-8">
-                    <div>
-                        <h3 class="font-black flex items-center gap-3 text-lg">
-                            <span id="pulseDot" class="w-3 h-3 rounded-full bg-[#00f2a1] animate-pulse"></span>
-                            <span id="downloadStatusText">Descargando Contenido</span>
-                        </h3>
-                        <p id="currentCourseTitleLive" class="text-slate-400 text-sm mt-1"></p>
-                    </div>
-                    <span id="syllabusCount"
-                        class="bg-white/5 px-3 py-1 rounded-full text-xs text-slate-500 font-bold border border-white/10"></span>
-                </div>
-                <div id="syllabusList" class="space-y-3 max-h-[500px] overflow-y-auto scr pr-2"></div>
-            </div>
-
-            <div id="syncShortcut"
-                class="hidden bg-sky-500/5 border border-sky-500/10 rounded-2xl p-6 flex items-center justify-between">
-                <div>
-                    <h4 class="font-bold text-sky-400 mb-1">Cursos Listos para Drive</h4>
-                    <p class="text-xs text-slate-500">Tienes cursos descargados que no han sido sincronizados.</p>
-                </div>
-                <button onclick="switchView('drive')"
-                    class="bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold px-4 py-2 rounded-lg transition">Ir
-                    a Drive</button>
-            </div>
-        </section>
+        {% include 'components/_view_descargar.jinja2' %}
 
         <!-- VIEW: DETALLE CURSO (Syllabus completo) -->
-        <section id="view-curso" class="view-section">
-            <div class="mb-8">
-                <button onclick="volverAlCatalogo()"
-                    class="flex items-center gap-2 text-slate-400 hover:text-white transition mb-4">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    <span class="text-sm font-bold">Volver al Catálogo</span>
-                </button>
-                <div class="flex items-start gap-6">
-                    <div id="cursoLogo"
-                        class="w-16 h-16 rounded-2xl bg-[#1e2235] p-3 border border-white/10 flex items-center justify-center flex-shrink-0">
-                    </div>
-                    <div class="flex-1">
-                        <h2 id="cursoTitulo" class="text-3xl font-black mb-2">Cargando...</h2>
-                        <p id="cursoMeta" class="text-slate-500 text-sm"></p>
-                    </div>
-                </div>
-            </div>
-            <div id="cursoContenido" class="space-y-8">
-                <div class="py-20 text-center opacity-20">
-                    <i data-lucide="loader" class="w-16 h-16 mx-auto mb-4 animate-spin"></i>
-                    <p class="text-sm font-bold">Cargando syllabus...</p>
-                </div>
-            </div>
-        </section>
+        {% include 'components/_view_curso.jinja2' %}
 
         <!-- VIEW: CURSOS -->
-        <section id="view-cursos" class="view-section">
-            <div class="flex justify-between items-end mb-10">
-                <div>
-                    <h2 class="text-3xl font-black mb-2">Mis Cursos</h2>
-                    <p class="text-slate-500 text-sm">Biblioteca local de contenido descargado.</p>
-                </div>
-            </div>
-
-            <!-- Search + Filter -->
-            <div class="flex flex-col gap-6 mb-12">
-                <div class="relative w-full">
-                    <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5"></i>
-                    <input id="searchInput" type="text" placeholder="Buscar en mi biblioteca..."
-                        class="search-bar pl-14 pr-12 text-sm" oninput="filterCourses()">
-                    <button id="searchClearBtn" onclick="clearSearch()"
-                        class="hidden absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition p-1.5 rounded-full hover:bg-white/10">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
-                <div id="filterChips" class="flex gap-2 overflow-x-auto py-1 scr">
-                    <button class="filter-chip active" onclick="setFilter('Todos', this)">Todos</button>
-                </div>
-            </div>
-
-            <div id="historyGrid" class="flex flex-col gap-12"></div>
-            <p id="emptyMsg" class="hidden text-center text-slate-500 py-20 font-medium">No se encontraron cursos que
-                coincidan con tu búsqueda.</p>
-        </section>
+        {% include 'components/_view_cursos.jinja2' %}
 
         <!-- VIEW: DRIVE (Cloud Sync) -->
-        <section id="view-drive" class="view-section pt-6">
-            <header class="flex justify-between items-end mb-8 px-2">
-                <div>
-                    <h2 class="text-3xl font-black italic uppercase tracking-tighter">Sincronización Cloud</h2>
-                    <p class="text-slate-500 text-sm mt-1">Gestión de respaldo y compartición en Google Drive.</p>
-                </div>
-                <button onclick="syncRemoteDrive()"
-                    class="flex items-center gap-2 px-5 py-2.5 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 rounded-xl text-xs font-bold border border-sky-500/20 transition group">
-                    <i data-lucide="refresh-cw"
-                        class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500"></i>
-                    Sincronizar con Drive
-                </button>
-            </header>
-
-            <div id="driveContent" class="hidden">
-                <!-- Action Bar -->
-                <div id="driveActionBar"
-                    class="hidden sticky top-4 z-10 bg-[#1a1a1a]/95 backdrop-blur-md border border-white/10 rounded-2xl p-4 mb-8 flex flex-wrap items-center justify-between gap-4 shadow-xl">
-                    <div class="flex items-center gap-5">
-                        <span id="driveSelectedCount" class="text-sm font-black text-sky-400"></span>
-                        <div class="flex gap-3">
-                            <button onclick="driveSelectAll()"
-                                class="text-[10px] uppercase tracking-wider font-bold text-slate-500 hover:text-white transition">Todos</button>
-                            <button onclick="driveSelectNone()"
-                                class="text-[10px] uppercase tracking-wider font-bold text-slate-500 hover:text-white transition">Ninguno</button>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-6">
-                        <label class="flex items-center gap-3 text-xs text-slate-400 cursor-pointer select-none">
-                            <input type="checkbox" id="driveShareToggle" class="accent-sky-500 w-4 h-4 rounded">
-                            <span class="font-semibold">Sincronización Pública</span>
-                        </label>
-                        <button onclick="startDriveSync()"
-                            class="bg-sky-500 hover:bg-sky-400 text-white font-black px-6 py-3 rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-sky-500/10">
-                            <i data-lucide="cloud-upload" class="w-4 h-4"></i> Iniciar Sincronización
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Course Table -->
-                <div id="driveCourseGrid" class="mb-12"></div>
-                <!-- Upload Progress -->
-                <div id="driveProgressPanel" class="hidden space-y-4 mb-12"></div>
-            </div>
-        </section>
+        {% include 'components/_view_drive.jinja2' %}
 
         <!-- VIEW: ACTIVIDAD / REGISTRO -->
-        <section id="view-registro" class="view-section">
-            <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div>
-                    <h2 class="text-3xl font-black mb-2">Historial de Sistema</h2>
-                    <p class="text-slate-500 text-sm">Bitácora de descargas y registro de envíos.</p>
-                </div>
-                <!-- Mini Tab Controller -->
-                <div class="flex bg-black/40 p-1 rounded-xl border border-white/5">
-                    <button onclick="switchRegTab('bitacora')" id="tab-bitacora"
-                        class="tab-btn active px-6 py-2 rounded-lg text-xs font-bold transition">Bitácora</button>
-                    <button onclick="switchRegTab('envios')" id="tab-envios"
-                        class="tab-btn px-6 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:text-white">Envíos
-                        Drive</button>
-                </div>
-            </div>
-
-            <style>
-                .tab-btn.active {
-                    background: #00f2a1;
-                    color: #000;
-                    box-shadow: 0 4px 12px rgba(0, 242, 161, 0.2);
-                }
-            </style>
-
-            <!-- TAB: BITACORA -->
-            <div id="reg-tab-bitacora" class="reg-tab-content">
-                <div class="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 180px;">Fecha / Hora</th>
-                                <th style="width: 120px;">Evento</th>
-                                <th>Mensaje</th>
-                                <th style="width: 100px;" class="text-center">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="activityLogBody"></tbody>
-                    </table>
-                    <div id="activityEmpty" class="hidden p-20 text-center text-slate-500">
-                        <i data-lucide="activity" class="w-12 h-12 mx-auto mb-4 opacity-10"></i>
-                        <p class="text-sm">No hay actividad registrada recientemente.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: ENVIOS -->
-            <div id="reg-tab-envios" class="reg-tab-content hidden">
-                <div class="flex flex-col gap-6 mb-10">
-                    <div class="relative w-full">
-                        <i data-lucide="search"
-                            class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5"></i>
-                        <input id="regSearchInput" type="text" placeholder="Buscar por email o curso..."
-                            class="search-bar pl-14 pr-12 text-sm" oninput="filterSharingLogs()">
-                        <button id="regSearchClearBtn" onclick="clearRegSearch()"
-                            class="hidden absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition p-1.5 rounded-full hover:bg-white/10">
-                            <i data-lucide="x" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Curso</th>
-                                <th>Email Destinatario</th>
-                                <th class="text-center">Fecha de Envío</th>
-                                <th class="text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sharingLogBody"></tbody>
-                    </table>
-                    <div id="sharingEmpty" class="hidden p-20 text-center text-slate-500">
-                        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-4 opacity-20"></i>
-                        <p class="text-sm">No hay registros de envíos todavía.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+        {% include 'components/_view_registro.jinja2' %}
 
         <!-- VIEW: MI CUENTA (Consolidated login/logout) -->
-        <section id="view-cuenta" class="view-section pt-10">
-            <div class="max-w-2xl mx-auto">
-                <header class="mb-10 text-center">
-                    <h1 class="text-4xl font-black mb-3 italic tracking-tight uppercase">Mi Cuenta</h1>
-                    <p class="text-slate-400">Gestiona tus conexiones y preferencias del sistema.</p>
-                </header>
-
-                <div class="grid gap-6">
-                    <!-- PLATZI AUTH -->
-                    <div
-                        class="bg-[#1a1a1a] border border-white/10 rounded-2xl p-8 shadow-2xl overflow-hidden relative">
-                        <div class="flex justify-between items-start mb-6">
-                            <div>
-                                <h3 class="text-xl font-bold flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded bg-[#00f2a1]/20 flex items-center justify-center">
-                                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#00f2a1]"></i>
-                                    </div>
-                                    Sesión de Platzi
-                                </h3>
-                                <p class="text-sm text-slate-500 mt-1">Necesario para descargar lecciones bloqueadas.
-                                </p>
-                            </div>
-                            <div id="platziStatusBadge"
-                                class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"></div>
-                        </div>
-
-                        <div id="platziLoggedView" class="hidden">
-                            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
-                                <div class="w-12 h-12 rounded-full bg-sky-500/20 flex items-center justify-center">
-                                    <i data-lucide="user-check" class="w-6 h-6 text-sky-400"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div id="platziUserEmail" class="text-sm font-bold truncate"></div>
-                                    <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Cuenta
-                                        Activa</div>
-                                </div>
-                                <button onclick="logout()"
-                                    class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-lg transition border border-red-500/20">
-                                    Cerrar Sesión
-                                </button>
-                            </div>
-                        </div>
-
-                        <div id="platziLoginView" class="space-y-4 pt-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <input type="email" id="email" placeholder="Correo electrónico"
-                                    class="glass-input text-sm">
-                                <input type="password" id="password" placeholder="Contraseña"
-                                    class="glass-input text-sm">
-                            </div>
-                            <button id="loginBtn" onclick="performLogin()"
-                                class="w-full bg-sky-500 hover:bg-sky-400 text-white font-bold p-3 rounded-xl text-sm transition shadow-lg shadow-sky-500/20">
-                                Conectar con Platzi
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- GDRIVE AUTH -->
-                    <div class="bg-[#1a1a1a] border border-white/10 rounded-2xl p-8 shadow-2xl">
-                        <div class="flex justify-between items-start mb-6">
-                            <div>
-                                <h3 class="text-xl font-bold flex items-center gap-2">
-                                    <i data-lucide="cloud" class="w-6 h-6 text-sky-400"></i>
-                                    Google Drive
-                                </h3>
-                                <p class="text-sm text-slate-500 mt-1">Gestiona la sincronización en la nube.</p>
-                            </div>
-                            <div id="driveStatusBadge"
-                                class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"></div>
-                        </div>
-
-                        <div id="driveLoggedView" class="hidden">
-                            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
-                                <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                                    <i data-lucide="cloud-lightning" class="w-6 h-6 text-emerald-400"></i>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div id="driveUserEmail" class="text-sm font-bold truncate"></div>
-                                    <div class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Espacio
-                                        de Almacenamiento</div>
-                                </div>
-                                <button onclick="disconnectDrive()"
-                                    class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-lg transition border border-red-500/20">
-                                    Desconectar
-                                </button>
-                            </div>
-                        </div>
-
-                        <div id="driveLoginView" class="text-center py-4">
-                            <button onclick="connectDrive()"
-                                class="bg-white hover:bg-slate-100 text-black font-bold px-8 py-3 rounded-xl text-sm transition flex items-center gap-2 mx-auto shadow-xl">
-                                <img src="/api/assets/assetsmenu/drive_logo.png"
-                                    class="w-5 h-5">
-                                Conectar Google Drive
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        {% include 'components/_view_cuenta.jinja2' %}
     </main>
 
     <!-- CUSTOM MODALS -->

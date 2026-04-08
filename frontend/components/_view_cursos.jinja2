@@ -1,0 +1,30 @@
+<section id="view-cursos" class="view-section">
+            <div class="flex justify-between items-end mb-10">
+                <div>
+                    <h2 class="text-3xl font-heading font-black mb-2 text-[var(--text-primary)]">Mis Cursos</h2>
+                    <p class="text-[var(--text-secondary)] text-sm">Biblioteca local de contenido descargado.</p>
+                </div>
+
+            </div>
+
+            <!-- Search + Filter -->
+            <div class="flex flex-col gap-6 mb-12">
+                <div class="relative w-full">
+                    <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] w-5 h-5"></i>
+                    <input id="searchInput" type="text" placeholder="Buscar en mi biblioteca..."
+                        class="w-full bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-[var(--radius-xl)] py-3 pl-14 pr-12 text-sm font-medium text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:shadow-[var(--glow-primary)] transition-all" oninput="filterCourses()">
+                    <button id="searchClearBtn" onclick="clearSearch()"
+                        class="hidden absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition p-1.5 rounded-full hover:bg-[var(--color-surface-3)]">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="filterChips" class="flex gap-2 overflow-x-auto py-1 scr">
+                    <!-- Javascript generates these chips, but we'll adapt the CSS classes locally in JS. We leave default active chip styles to external JS. -->
+                    <button class="filter-chip active" onclick="setFilter('Todos', this)">Todos</button>
+                </div>
+            </div>
+
+            <div id="historyGrid" class="flex flex-col gap-12"></div>
+            <p id="emptyMsg" class="hidden text-center text-[var(--text-muted)] py-20 font-medium">No se encontraron cursos que
+                coincidan con tu búsqueda.</p>
+        </section>

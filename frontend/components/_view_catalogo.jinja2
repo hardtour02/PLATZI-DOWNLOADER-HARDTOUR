@@ -1,0 +1,59 @@
+<section id="view-catalogo" class="view-section active">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-10 gap-6 relative">
+                <div class="shrink-0">
+                    <h2 class="text-3xl font-heading font-black mb-2 text-[var(--text-primary)]">Catálogo Platzi</h2>
+                    <p class="text-[var(--text-secondary)] text-sm">Explora todas las escuelas, rutas y cursos.</p>
+                </div>
+
+                <div class="w-full lg:max-w-xl relative flex-1 order-last lg:order-none z-50">
+                    <div class="relative group">
+                        <i data-lucide="search"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--color-secondary)] transition-colors"></i>
+                        <input type="text" id="catalogSearchInput" oninput="performCatalogSearch(this.value)"
+                            placeholder="Buscar escuela, ruta o curso..."
+                            class="w-full bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-[var(--radius-xl)] py-3 pl-11 pr-10 text-sm font-medium text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--color-primary)] focus:shadow-[var(--glow-primary)] transition-all">
+                        <button id="catalogSearchClearBtn" onclick="clearCatalogSearch()"
+                            class="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)] hidden transition-colors">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <!-- Dropdown Results -->
+                    <div id="catalogSearchResults"
+                        class="absolute top-full left-0 right-0 mt-2 bg-[var(--color-surface-1)] border border-[var(--color-border)] rounded-[var(--radius-xl)] shadow-[var(--shadow-md)] hidden flex-col z-50 max-h-[550px] overflow-y-auto overflow-x-hidden p-2 gap-1 backdrop-blur-3xl">
+                        <!-- Populated dynamic search results -->
+                    </div>
+                </div>
+
+                <button onclick="syncCatalog()" id="syncCatalogBtn"
+                    class="bg-[var(--color-primary)] hover:brightness-110 text-black font-extrabold px-6 py-3 rounded-[var(--radius-md)] transition text-sm shadow-[var(--glow-primary)] flex items-center gap-2 shrink-0">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    Actualizar
+                </button>
+            </div>
+
+            <!-- Breadcrumbs -->
+            <div id="catalogBreadcrumbs"
+                class="hidden flex items-center gap-3 text-xs font-bold text-[var(--text-muted)] mb-8 px-2 uppercase tracking-widest">
+            </div>
+
+            <!-- Sync Progress Bar -->
+            <div id="catalogSyncProgress"
+                class="hidden bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-[var(--radius-xl)] p-6 mb-10 shadow-[var(--shadow-md)]">
+                <div class="flex justify-between items-center mb-4">
+                    <span id="catalogSyncDetail" class="text-xs font-bold text-[var(--text-secondary)]">Iniciando sincronización...</span>
+                    <span id="catalogSyncPercent" class="text-xs font-black text-[var(--color-primary)]">0%</span>
+                </div>
+                <div class="w-full bg-[var(--color-surface-3)] h-2.5 rounded-full overflow-hidden">
+                    <div id="catalogSyncBar" class="bg-[var(--color-primary)] h-full transition-all duration-500" style="width: 0%">
+                    </div>
+                </div>
+            </div>
+
+            <div id="catalogContent" class="space-y-12">
+                <!-- Se poblará dinámicamente -->
+                <div class="py-20 text-center text-[var(--text-muted)]">
+                    <i data-lucide="rocket" class="w-16 h-16 mx-auto mb-4 opacity-20"></i>
+                    <p class="text-sm font-bold opacity-50">Cargando catálogo maestro...</p>
+                </div>
+            </div>
+        </section>
