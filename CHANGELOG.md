@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.2.0 (2026-04-08)
+
+### Feature
+
+* feat: complete Carbon Neon implementation and restructure ([`a211b11`](https://github.com/hardtour02/PLATZI-DOWNLOADER-HARDTOUR/commit/a211b11dfc720061f26cb3248fe745e63c909416))
+
 ## v0.1.1 (2026-04-07)
 
 ### Fix
