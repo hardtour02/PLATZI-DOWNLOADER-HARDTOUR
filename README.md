@@ -60,10 +60,10 @@ Utiliza los lanzadores directos incluidos:
 
 ## 💡 Guía Rápida
 
-- **Iniciar Sesión**: Accede desde el panel lateral para vincular tu cuenta de Platzi.
-- **Explorar Catálogo**: Navega por escuelas y rutas en la pestaña **"Catálogo"** para encontrar tus cursos favoritos.
-- **Sincronización Inteligente**: Al hacer clic en el botón **Descargar** de cualquier curso en el catálogo, el sistema capturará automáticamente el enlace y lo transferirá al módulo de descarga sin intervención manual.
-- **Modo Offline**: Una vez completado, disfruta de tus clases en la pestaña **"Mis Cursos"** sin necesidad de conexión externa.
+- **Conexión Blindada**: Inicia sesión desde el panel lateral para sincronizar tu cuenta de Platzi mediante un entorno automatizado seguro.
+- **Ecosistema de Catálogo**: Explora el universo de Platzi filtrado por escuelas y rutas. Encuentra el curso que necesitas con la potencia del buscador integrado.
+- **Flujo Automatizado Senior (PVP-Link)**: Al accionar el botón **"Descargar"** en el catálogo, el **Motor Automático de Scraping** entra en acción, resolviendo el contexto del curso y transfiriéndolo instantáneamente a la cola de procesamiento del Downloader.
+- **Gestión Offline Total**: Controla tus lecciones, visualiza progresos y disfruta del contenido descargado en la pestaña **"Mis Cursos"**, con badges y miniaturas resueltas localmente para una experiencia 100% independiente.
 
 ---
 
