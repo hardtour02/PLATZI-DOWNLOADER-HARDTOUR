@@ -1,0 +1,127 @@
+<!-- DASHBOARD SECTION -->
+<div id="view-dashboard" class="view-section space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div class="flex flex-col gap-2">
+        <h2 class="text-4xl font-black font-heading text-white tracking-tighter">Hola de nuevo. 👋</h2>
+        <p class="text-[var(--text-secondary)] font-medium">Aquí el resumen de tus descargas y el estado del servidor.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Status Card: Disk -->
+        <div class="glass p-6 rounded-[var(--radius-3xl)] border-white/5 hover:border-[var(--color-primary)]/20 transition-all group overflow-hidden relative">
+            <div class="absolute -bottom-6 -right-4 font-black text-8xl text-white opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 pointer-events-none select-none">01</div>
+            <div class="flex items-center justify-between mb-4 relative z-10">
+                <div class="w-10 h-10 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)]">
+                    <i data-lucide="database" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Almacenamiento</span>
+            </div>
+            <h3 id="diskProgress" class="text-2xl font-black text-white mb-2 relative z-10">Cargando...</h3>
+            <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden relative z-10">
+                <div id="diskProgressBar" class="h-full bg-[var(--color-primary)] rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Status Card: Downloads -->
+        <div class="glass p-6 rounded-[var(--radius-3xl)] border-white/5 hover:border-[#fbbf24]/20 transition-all group relative overflow-hidden">
+            <div class="absolute -bottom-6 -right-4 font-black text-8xl text-white opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 pointer-events-none select-none">02</div>
+            <div class="flex items-center justify-between mb-4 relative z-10">
+                <div class="w-10 h-10 rounded-xl bg-[#fbbf24]/10 flex items-center justify-center text-[#fbbf24]">
+                    <i data-lucide="folder-check" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Descargas</span>
+            </div>
+            <h3 id="coursesCount" class="text-2xl font-black text-white relative z-10">-- Cursos</h3>
+            <p id="lessonsCount" class="text-xs font-bold text-[var(--text-muted)] mt-2 uppercase tracking-wide relative z-10">-- Clases totales</p>
+        </div>
+
+        <!-- Status Card: Server -->
+        <div class="glass p-6 rounded-[var(--radius-3xl)] border-white/5 hover:border-[#00f2a1]/20 transition-all group relative overflow-hidden">
+            <div class="absolute -bottom-6 -right-4 font-black text-8xl text-white opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 pointer-events-none select-none">03</div>
+            <div class="flex items-center justify-between mb-4 relative z-10">
+                <div class="w-10 h-10 rounded-xl bg-[#00f2a1]/10 flex items-center justify-center text-[#00f2a1]">
+                    <i data-lucide="zap" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Backend</span>
+            </div>
+            <h3 id="serverStatus" class="text-2xl font-black text-[#00f2a1] flex items-center gap-2 relative z-10">Online <div class="w-2 h-2 rounded-full bg-[#00f2a1] animate-pulse"></div></h3>
+            <p class="text-xs font-bold text-[var(--text-muted)] mt-2 uppercase tracking-wide relative z-10">Servicio Estable</p>
+        </div>
+
+        <!-- Status Card: Auth -->
+        <div class="glass p-6 rounded-[var(--radius-3xl)] border-white/5 hover:border-red-500/20 transition-all group relative overflow-hidden">
+            <div class="absolute -bottom-6 -right-4 font-black text-8xl text-white opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 pointer-events-none select-none">04</div>
+            <div class="flex items-center justify-between mb-4 relative z-10">
+                <div id="authIconCol" class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500">
+                    <i data-lucide="shield-off" class="w-5 h-5"></i>
+                </div>
+                <span class="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Sesión</span>
+            </div>
+            <h3 id="authStatusText" class="text-2xl font-black text-white relative z-10">Cargando...</h3>
+            <p class="text-xs font-bold text-[var(--text-muted)] mt-2 uppercase tracking-wide relative z-10">Platzi Official</p>
+        </div>
+    </div>
+
+    <!-- Recent Activity / Current Item -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Progress Card -->
+        <div class="lg:col-span-2 glass rounded-[var(--radius-2xl)] p-8 border-white/5 relative overflow-hidden">
+            <div id="empty-state" class="flex flex-col items-center justify-center py-10 space-y-4 opacity-50">
+                <div class="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center text-4xl">☕</div>
+                <h4 class="font-bold text-white uppercase tracking-tighter">Sin descargas activas</h4>
+                <p class="text-sm font-medium">Busca un curso en el catálogo para comenzar.</p>
+            </div>
+            
+            <div id="progressItem" class="hidden space-y-6">
+                <div class="flex justify-between items-start">
+                    <div class="space-y-1">
+                        <span class="px-2 py-0.5 rounded bg-[var(--color-primary)] text-black text-[9px] font-black uppercase tracking-widest">Descargando Ahora</span>
+                        <h3 id="activeCourseTitle" class="text-2xl font-black text-white mt-2 font-heading tracking-tight">Nombre del Curso</h3>
+                    </div>
+                    <div id="activeProgressPct" class="text-4xl font-black font-heading text-[var(--color-primary)]">0%</div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between text-[10px] font-black uppercase tracking-[0.1em] text-[var(--text-muted)]">
+                        <span id="activeUnitName" class="truncate max-w-[70%]">Preparando entorno...</span>
+                        <span id="activeStatusLabel" class="text-[var(--color-primary)]">CONECTANDO</span>
+                    </div>
+                    <div class="w-full h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
+                        <div id="activeProgressBar" class="h-full bg-gradient-to-r from-[var(--color-primary)] to-[#00d18a] rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics / Info Sidebar -->
+        <div class="glass rounded-[var(--radius-2xl)] p-8 border-white/5">
+            <h4 class="text-xs font-black uppercase tracking-widest text-[var(--text-muted)] mb-6">Configuración Local</h4>
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40">
+                        <i data-lucide="hard-drive" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-wider">Directorio Raíz</p>
+                        <p id="localPath" class="text-[11px] font-mono font-bold text-white/60 truncate max-w-[150px]">C:/Users/Harold/Downloads</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40">
+                        <i data-lucide="cpu" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-wider">Hilos Activos</p>
+                        <p class="text-sm font-bold text-white">4 Procesos Paralelos</p>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <button onclick="refrescarCatalog()" class="w-full py-4 rounded-xl glass glass-hover border-white/10 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 group shadow-lg shadow-black/20">
+                        <i data-lucide="refresh-cw" class="w-4 h-4 group-hover:rotate-180 transition-transform duration-1000"></i>
+                        Actualizar Catálogo
+                    </button>
+                    <p class="text-[9px] text-[var(--text-muted)] text-center mt-3 leading-relaxed uppercase font-black tracking-widest opacity-60">Sincronización Local: <span id="lastUpdate">En Tiempo Real</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

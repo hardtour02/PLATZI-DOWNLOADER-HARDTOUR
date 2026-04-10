@@ -1,7 +1,7 @@
 # Google Drive OAuth (private)
 data/gdrive_credentials.json
 data/gdrive_token.json
-*.json
+data/*.json
 bin/
 downloads/
 data/courses/
@@ -11,6 +11,19 @@ Courses/
 *.ts
 *.mhtml
 *.vtt
+
+# Agent & Workspace
+.agent/
+.vscode/
+scratch/
+scratch_test.py
+data/progress/
+logs/
+data/catalog.json
+data/events.json
+data/history.json
+data/users.json
+data/downloads.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -165,8 +165,51 @@
         }
 
         .lesson-row:hover {
-            background: rgba(255, 255, 255, .04);
+            --glow-primary: 0 0 20px rgba(0, 242, 161, 0.2);
+            --glow-secondary: 0 0 20px rgba(56, 189, 248, 0.2);
+            --glow-error: 0 0 20px rgba(248, 113, 113, 0.2);
+            --radius-3xl: 24px;
         }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .glass-hover:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .kpi-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; width: 60px; height: 60px;
+            background: var(--glow-color, var(--color-primary));
+            filter: blur(40px);
+            opacity: 0.1;
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+            transition: opacity 0.3s;
+        }
+        .kpi-card:hover::after { opacity: 0.2; }
+
+        .kpi-value {
+            text-shadow: 0 0 15px var(--glow-color, var(--color-primary-dim));
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
 
         .lesson-row.active {
             background: rgba(0, 242, 161, .05);
@@ -343,32 +386,68 @@
     </style>
 </head>
 
-<body>
-    <!-- Navigation Sidebar -->
-    {% include 'components/_sidebar.jinja2' %}
+<body class="bg-[var(--color-bg)] text-[var(--text-primary)] font-sans antialiased overflow-hidden selection:bg-[var(--color-primary)] selection:text-black">
+    <!-- Main Wrapper -->
+    <div class="flex h-screen w-full relative">
+        
+        <!-- Navigation Sidebar -->
+        {% include 'components/_sidebar.jinja2' %}
 
-    <main class="main-content">
-        <!-- VIEW: CATÁLOGO -->
-        {% include 'components/_view_catalogo.jinja2' %}
+        <!-- Content Area -->
+        <main class="flex-1 h-full overflow-y-auto overflow-x-hidden flex flex-col relative bg-gradient-to-br from-[#0f111a] to-[#0a0c12]">
+            
+            <!-- Global Header -->
+            <header class="h-20 shrink-0 flex items-center justify-between px-8 lg:px-12 sticky top-0 bg-[var(--color-bg)]/60 backdrop-blur-xl z-[60] border-b border-white/[0.03]">
+                <div class="flex items-center gap-6 w-full max-w-2xl">
+                    <div class="relative w-full group">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] group-focus-within:text-[var(--color-primary)] transition-colors"></i>
+                        <input type="text" id="globalSearch" placeholder="Buscar cursos, escuelas o rutas..." onkeyup="filterCatalogBySearch()" class="w-full h-11 bg-white/[0.03] border border-white/5 rounded-2xl pl-12 pr-4 text-sm font-medium focus:outline-none focus:border-[var(--color-primary)]/40 focus:bg-white/[0.06] transition-all placeholder:text-white/20">
+                    </div>
+                </div>
 
-        <!-- VIEW: DESCARGAR -->
-        {% include 'components/_view_descargar.jinja2' %}
+                <div class="flex items-center gap-4">
+                    <div class="hidden md:flex flex-col items-end px-4 border-r border-white/5">
+                        <span class="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--color-primary)]">Backend Status</span>
+                        <div class="flex items-center gap-2">
+                            <span id="syncText" class="text-[10px] font-bold text-[var(--text-muted)]">CONNECTED</span>
+                            <div class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] shadow-[0_0_8px_var(--color-primary)]"></div>
+                        </div>
+                    </div>
+                    <button onclick="switchView('registro')" class="w-11 h-11 rounded-2xl glass glass-hover flex items-center justify-center relative group" title="Registro de Actividad">
+                        <i data-lucide="bell" class="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity"></i>
+                        <span class="absolute top-3 right-3 w-2 h-2 bg-[var(--color-primary)] rounded-full border-2 border-[var(--color-bg)]"></span>
+                    </button>
+                </div>
+            </header>
 
-        <!-- VIEW: DETALLE CURSO (Syllabus completo) -->
-        {% include 'components/_view_curso.jinja2' %}
+            <!-- Views Container -->
+            <div id="main-content-area" class="flex-1 p-8 lg:p-12">
+                <!-- VIEW: DASHBOARD -->
+                {% include 'components/_view_dashboard.jinja2' %}
 
-        <!-- VIEW: CURSOS -->
-        {% include 'components/_view_cursos.jinja2' %}
+                <!-- VIEW: CATÁLOGO -->
+                {% include 'components/_view_catalogo.jinja2' %}
 
-        <!-- VIEW: DRIVE (Cloud Sync) -->
-        {% include 'components/_view_drive.jinja2' %}
+                <!-- VIEW: DESCARGAR -->
+                {% include 'components/_view_descargar.jinja2' %}
 
-        <!-- VIEW: ACTIVIDAD / REGISTRO -->
-        {% include 'components/_view_registro.jinja2' %}
+                <!-- VIEW: DETALLE CURSO -->
+                {% include 'components/_view_curso.jinja2' %}
 
-        <!-- VIEW: MI CUENTA (Consolidated login/logout) -->
-        {% include 'components/_view_cuenta.jinja2' %}
-    </main>
+                <!-- VIEW: CURSOS -->
+                {% include 'components/_view_cursos.jinja2' %}
+
+                <!-- VIEW: DRIVE (Cloud Sync) -->
+                {% include 'components/_view_drive.jinja2' %}
+
+                <!-- VIEW: ACTIVIDAD / REGISTRO -->
+                {% include 'components/_view_registro.jinja2' %}
+
+                <!-- VIEW: MI CUENTA -->
+                {% include 'components/_view_cuenta.jinja2' %}
+            </div>
+        </main>
+    </div>
 
     <!-- CUSTOM MODALS -->
 
@@ -493,11 +572,15 @@
         lucide.createIcons();
         const ws = new WebSocket(`ws://${location.host}/ws`);
         let allCourses = {};
-        let playlist = [];
-        let currentIndex = -1;
-        let currentCourseSlug = null;
-        let activeFilter = 'Todos';
         let sharingLogs = [];
+        let catalogData = [];
+        let currentIndex = -1;
+        let playlist = [];
+        let currentCourseSlug = "";
+        let currentShareSlug = "";
+        let shareEmails = [];
+        let activeFilter = 'Todos';
+        let progressCache = { metrics: {}, by_slug: {} };
 
         // ============ SPA Navigation ============
         function switchView(viewId) {
@@ -623,6 +706,7 @@
         // ============ History / Grid ============
         // Fallback SVG (Platzi Style)
         const FALLBACK_LOGO_SVG = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00f2a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>');
+        const FALLBACK_THUMBNAIL = "/api/assets/assetmadre/thumbnails/platzi-default.jpg";
         const PLATZI_LOGO = FALLBACK_LOGO_SVG;
 
         async function loadCatalogCacheSilent() {
@@ -636,20 +720,18 @@
         async function fetchHistory() {
             // Ensuring global catalog payload exists to cross-reference UI badges early
             if (!catalogCache) await loadCatalogCacheSilent();
-
-            const r = await fetch('/api/history');
-            const data = await r.json();
-            allCourses = data.courses || {};
-
-            // Auto-fetch assets for courses that are missing thumbnails
-            for (const [slug, c] of Object.entries(allCourses)) {
-                if (!c.thumbnail_url) {
-                    fetchAssets(slug); // fire-and-forget, will reload on completion
-                }
-            }
-
-            buildFilterChips();
-            renderGrid();
+            try {
+                // Use dashboard endpoint for verified data (local-first)
+                const r = await fetch('/api/progress/dashboard');
+                const data = await r.json();
+                allCourses = data.courses || {};
+                progressCache = data.progress || { total_lessons: 0, viewed_lessons: 0, by_slug: {} };
+                
+                buildFilterChips();
+                renderGrid();
+                renderTrackingTable();
+                updateCourseMetrics();
+            } catch (e) { console.error("Error fetching history", e); }
         }
 
         async function fetchAssets(slug) {
@@ -670,28 +752,44 @@
         }
 
         function buildFilterChips() {
-            const categories = [...new Set(
-                Object.values(allCourses)
-                    .map(c => c.category || "Otros")
-                    .filter(Boolean)
-                    .map(s => s.trim())
-            )];
-            const container = document.getElementById('filterChips');
-            // Keep first chip (Todos), rebuild the rest
-            container.innerHTML = `<button class="filter-chip ${activeFilter === 'Todos' ? 'active' : ''}" onclick="setFilter('Todos',this)">Todos</button>`;
-            categories.forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = 'filter-chip ' + (activeFilter === cat ? 'active' : '');
-                btn.innerText = cat;
-                btn.onclick = () => setFilter(cat, btn);
-                container.appendChild(btn);
+            const container = document.getElementById('schoolFilterContainer');
+            if (!container) return;
+
+            // Get unique schools from downloaded courses
+            const schoolsSet = new Set();
+            for (const slug in allCourses) {
+                const school = getSchoolForCourse(slug);
+                if (school.name !== 'Biblioteca Local' && school.name !== 'Otros' && school.name !== 'Drive Sync') {
+                    schoolsSet.add(school.name);
+                }
+            }
+            const schools = Array.from(schoolsSet).sort();
+
+            // Default chips
+            let html = `<button class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all filter-chip ${activeFilter === 'Todos' ? 'bg-[var(--color-primary)] text-black shadow-[var(--glow-primary)] active' : 'bg-white/5 border border-white/5 text-[var(--text-muted)] hover:bg-white/10 hover:text-white'}" onclick="setFilter('Todos', this)">Todos</button>`;
+            
+            schools.forEach(schoolName => {
+                const isActive = activeFilter === schoolName;
+                html += `<button class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all filter-chip ${isActive ? 'bg-[var(--color-primary)] text-black shadow-[var(--glow-primary)] active' : 'bg-white/5 border border-white/5 text-[var(--text-muted)] hover:bg-white/10 hover:text-white'}" onclick="setFilter('${schoolName.replace(/'/g, "\\'")}', this)">${schoolName}</button>`;
             });
+
+            // Special categories
+            ['Otros', 'Drive Sync'].forEach(special => {
+                const isActive = activeFilter === special;
+                html += `<button class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all filter-chip ${isActive ? 'bg-[var(--color-primary)] text-black shadow-[var(--glow-primary)] active' : 'bg-white/5 border border-white/5 text-[var(--text-muted)] hover:bg-white/10 hover:text-white'}" onclick="setFilter('${special}', this)">${special}</button>`;
+            });
+
+            container.innerHTML = html;
         }
 
         function setFilter(cat, btn) {
             activeFilter = cat;
-            document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            document.querySelectorAll('.filter-chip').forEach(b => {
+                b.classList.remove('active', 'bg-[var(--color-primary)]', 'text-black', 'shadow-[var(--glow-primary)]');
+                b.classList.add('bg-white/5', 'border', 'border-white/5', 'text-[var(--text-muted)]');
+            });
+            btn.classList.add('active', 'bg-[var(--color-primary)]', 'text-black', 'shadow-[var(--glow-primary)]');
+            btn.classList.remove('bg-white/5', 'border', 'border-white/5', 'text-[var(--text-muted)]');
             filterCourses();
         }
 
@@ -724,131 +822,265 @@
             return null;
         }
 
+        function updateCourseMetrics() {
+            if (!progressCache || !progressCache.metrics) return;
+            const m = progressCache.metrics;
+            
+            const els = {
+                total: document.getElementById('metric-total'),
+                completados: document.getElementById('metric-completados'),
+                progreso: document.getElementById('metric-progreso'),
+                storage: document.getElementById('metric-storage')
+            };
+
+            if (els.total) els.total.innerText = m.total || 0;
+            if (els.completados) els.completados.innerText = m.completados || 0;
+            if (els.progreso) els.progreso.innerText = m.en_progreso || 0;
+            if (els.storage) els.storage.innerHTML = `${m.gb_disco || 0} <span class="text-sm font-bold opacity-30">GB</span>`;
+            
+            const badge = document.getElementById('courseCountBadge');
+            if (badge) badge.innerText = `${m.total || 0} CURSOS`;
+        }
+
+        function getSchoolForCourse(slug) {
+            if (!catalogCache || !catalogCache.schools) return { name: 'Biblioteca Local', color: '#38bdf8', emblem: null };
+            for (const s of catalogCache.schools) {
+                if (!s.rutas) continue;
+                for (const p of s.rutas) {
+                    if (!p.cursos) continue;
+                    if (p.cursos.some(c => c.slug === slug)) {
+                        let emblem = null;
+                        if (s.emblema_local) emblem = `/api/assets/${s.emblema_local.replace(/^\/+/, '')}`;
+                        // Priority 1: Check if there's a local emblem in assetmadre for this school (simulation)
+                        // In practice, we use the catalog's emblem_local which we ensured is downloaded.
+                        return { 
+                            name: s.nombre || s.title || 'Escuela Platzi', 
+                            color: s.color || '#00f2a1',
+                            emblem: emblem
+                        };
+                    }
+                }
+            }
+            return { name: 'Otros', color: '#94a3b8', emblem: null };
+        }
+
         function renderGrid(q = '') {
             const grid = document.getElementById('historyGrid');
             const emptyMsg = document.getElementById('emptyMsg');
+            if (!grid) return;
             grid.innerHTML = '';
             let shown = 0;
 
-            // Sort: newest first
             const items = Object.entries(allCourses).sort((a, b) => {
-                return new Date(b[1].last_downloaded || 0) - new Date(a[1].last_downloaded || 0);
+                return new Date(b[1].last_active || b[1].last_downloaded || 0) - new Date(a[1].last_active || a[1].last_downloaded || 0);
             });
 
-            // Group courses by category
+            // Group courses by School
             const grouped = {};
             for (const [slug, c] of items) {
                 const matchSearch = !q || c.title.toLowerCase().includes(q) || slug.toLowerCase().includes(q);
-                const matchFilter = activeFilter === 'Todos' || (c.category || 'Otros') === activeFilter;
+                
+                // Determine school
+                const school = getSchoolForCourse(slug);
+                const matchFilter = activeFilter === 'Todos' || school.name === activeFilter;
+                
                 if (!matchSearch || !matchFilter) continue;
 
-                const cat = c.category && c.category.trim() !== '' ? c.category.trim() : 'Biblioteca Local';
-                if (!grouped[cat]) grouped[cat] = [];
-                grouped[cat].push({ slug, ...c });
+                if (!grouped[school.name]) grouped[school.name] = { info: school, courses: [] };
+                grouped[school.name].courses.push({ slug, ...c });
                 shown++;
             }
 
             if (shown === 0) {
-                emptyMsg.classList.remove('hidden');
+                if (emptyMsg) emptyMsg.classList.remove('hidden');
                 return;
             }
-            emptyMsg.classList.add('hidden');
+            if (emptyMsg) emptyMsg.classList.add('hidden');
 
-            // Render each category as a section
-            for (const [cat, courses] of Object.entries(grouped)) {
+            for (const [schoolName, data] of Object.entries(grouped)) {
                 const section = document.createElement('div');
-                section.className = 'mb-12';
+                section.className = 'animate-in fade-in slide-in-from-bottom-4 duration-500';
 
-                const heading = document.createElement('h2');
-                heading.className = 'text-xl font-black mb-6 flex items-center gap-3 text-slate-100 border-b border-white/5 pb-3';
-                heading.innerHTML = `<span class="bg-[#00f2a1] w-1.5 h-6 rounded-full"></span> ${cat} <span class="bg-white/5 text-[10px] px-2 py-0.5 rounded border border-white/5 text-slate-500 ml-auto uppercase tracking-widest font-bold">${courses.length} cursos</span>`;
-                section.appendChild(heading);
+                const schoolInfo = data.info;
+                const header = document.createElement('div');
+                header.className = 'flex items-center gap-4 mb-8 border-b border-white/[0.03] pb-4';
+                
+                const emblemHtml = schoolInfo.emblem 
+                    ? `<img src="${schoolInfo.emblem}" class="w-8 h-8 object-contain" onerror="this.style.display='none'">`
+                    : `<div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[var(--color-primary)]"><i data-lucide="graduation-cap" class="w-4 h-4"></i></div>`;
+
+                header.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        ${emblemHtml}
+                        <h3 class="text-lg font-black font-heading text-white">${schoolName}</h3>
+                    </div>
+                    <div class="ml-auto flex items-center gap-3">
+                        <span class="text-[9px] font-black uppercase tracking-widest text-white/20">${data.courses.length} cursos</span>
+                        <div class="w-2 h-2 rounded-full" style="background: ${schoolInfo.color}; box-shadow: 0 0 10px ${schoolInfo.color}88"></div>
+                    </div>
+                `;
+                section.appendChild(header);
 
                 const row = document.createElement('div');
-                row.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
+                row.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-1';
 
-                courses.forEach(c => {
-                    const catalogData = findCourseInCatalog(c.slug);
-
-                    let thumb = c.thumbnail_url || '';
-                    let logo = null;
-
-                    // Local asset resolution
+                data.courses.forEach(c => {
+                    const catEntry = findCourseInCatalog(c.slug);
                     const resolvePath = (p) => {
                         if (!p || p.startsWith('http') || p.startsWith('data:') || p.startsWith('/api/')) return p;
                         return `/api/assets/${p.replace(/^\/+/, '')}`.replace(/([^:])\/\//g, '$1/');
                     };
 
-                    thumb = resolvePath(thumb);
+                    const isDeleted = c.exists === false;
+                    
+                    // Priority: 1) assetmadre per-course folder
+                    let thumb = `/api/assets/assetmadre/thumbnails/${c.slug}.jpg`;
+                    let logo = `/api/assets/assetmadre/badges/${c.slug}.png`;
 
-                    // Resolve Logo Priority
-                    if (catalogData && catalogData.badge_local) {
-                        logo = resolvePath(catalogData.badge_local);
-                    }
-                    if (!logo && c.logo_url) {
-                        logo = resolvePath(c.logo_url);
-                    }
-                    if (!logo) {
-                        // Predictive local path
-                        logo = `/api/assets/assetmadre/${c.slug}/logo.png`;
-                    }
-
-                    const card = document.createElement('div');
-                    card.className = 'course-card group bg-[#1a1a1a] border border-white/10 rounded-3xl overflow-hidden flex flex-col transition-all hover:border-[#00f2a1]/30 hover:shadow-2xl';
-                    card.onclick = () => openPlayer(c.slug);
-
-                    const displayLogo = (logo === 'FALLBACK_LOGO_SVG' || !logo) ? FALLBACK_LOGO_SVG : logo;
-
+                    const progress = progressCache.by_slug?.[c.slug];
+                    const percentage = progress?.porcentaje || 0;
                     const lessons = c.total_lessons || 0;
-                    const size = c.total_size || '0 B';
-                    const exists = c.exists !== false; // history_manager now returns this
-
-                    // Level badge from catalog data or history
-                    const lvl = (catalogData && catalogData.level) || c.level || '';
-                    const lvlColors = {
-                        'Básico': 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
-                        'Intermedio': 'bg-sky-500/15 text-sky-400 border-sky-500/20',
-                        'Avanzado': 'bg-purple-500/15 text-purple-400 border-purple-500/20',
-                    };
-                    const lvlBadge = lvl
-                        ? `<span class="inline-flex items-center text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${lvlColors[lvl] || 'bg-white/5 text-slate-400 border-white/10'}">${lvl}</span>`
-                        : '';
+                    const completed = progress?.completadas || 0;
+                    
+                    const card = document.createElement('div');
+                    card.className = `group glass glass-hover rounded-[var(--radius-3xl)] overflow-hidden flex flex-col cursor-pointer transition-all duration-500 hover:-translate-y-2 ${isDeleted ? 'opacity-60 grayscale scale-[0.98]' : ''}`;
+                    card.onclick = () => isDeleted ? alert('Este curso fue eliminado físicamente de la carpeta /courses.') : openPlayer(c.slug);
 
                     card.innerHTML = `
-                <div class="card-banner aspect-video relative">
-                    ${thumb ? `<img src="${thumb}" class="thumb w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.outerHTML='<div class=\\'w-full h-full flex items-center justify-center bg-slate-900 text-slate-700 text-[10px] font-black\\'>SIN MINIATURA</div>'">` : '<div class="w-full h-full bg-slate-900 border-b border-white/5"></div>'}
-                    ${!exists ? '<div class="absolute inset-0 bg-red-950/40 backdrop-blur-sm flex items-center justify-center text-[10px] font-black text-red-400 uppercase tracking-widest px-4 text-center">Archivo no encontrado en disco</div>' : ''}
-                    <div class="play-overlay">
-                        <div class="play-circle">
-                            <svg class="play-icon-svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <div class="aspect-video relative overflow-hidden">
+                            <img src="${thumb}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onerror="this.src='${FALLBACK_THUMBNAIL}'">
+                            
+                            ${isDeleted ? `
+                                <div class="absolute inset-0 bg-red-950/40 backdrop-blur-[2px] flex items-center justify-center p-4">
+                                    <div class="px-3 py-1.5 bg-red-500 rounded-lg text-[10px] font-black text-white shadow-lg flex items-center gap-2">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                        ELIMINADO EN LOCAL
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <div class="w-12 h-12 rounded-full bg-[var(--color-primary)] text-black flex items-center justify-center translate-y-4 group-hover:translate-y-0 transition-transform shadow-[var(--glow-primary)]">
+                                        <i data-lucide="play" class="w-6 h-6 fill-current"></i>
+                                    </div>
+                                </div>
+                            `}
+
+                            ${percentage > 0 ? `<div class="absolute bottom-0 left-0 right-0 h-1 bg-white/10"><div class="h-full bg-[var(--color-primary)] shadow-[var(--glow-primary)]" style="width: ${percentage}%"></div></div>` : ''}
                         </div>
-                    </div>
-                </div>
-                <div class="p-5 flex-1 flex flex-col relative">
-                    <div class="absolute -top-6 right-5 w-12 h-12 rounded-full bg-[#1a1a1a] p-1.5 border border-white/10 shadow-xl overflow-hidden">
-                        <img src="${displayLogo}" class="w-full h-full object-contain rounded-full" onerror="this.src='${FALLBACK_LOGO_SVG}'">
-                    </div>
-                    <div class="mb-2">${lvlBadge}</div>
-                    <h3 class="font-bold text-sm leading-tight mb-4 pr-2 line-clamp-2 group-hover:text-[#00f2a1] transition-colors">${c.title}</h3>
-                    <div class="mt-auto flex items-center justify-between pt-2 border-t border-white/5">
-                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${lessons} clases</span>
-                        <span class="text-[10px] font-bold text-slate-600 bg-white/5 px-2 py-0.5 rounded">${size}</span>
-                    </div>
-                </div>
-            `;
+                        <div class="p-5 flex-1 flex flex-col relative">
+                            <div class="absolute -top-6 right-5 w-12 h-12 rounded-2xl glass p-2 border-white/10 shadow-2xl group-hover:scale-110 transition-transform duration-500">
+                                <img src="${logo}" class="w-full h-full object-contain" onerror="this.src='${FALLBACK_LOGO_SVG}'">
+                            </div>
+                            <h4 class="font-bold text-sm leading-snug mb-4 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2 pr-8">${c.title}</h4>
+                            <div class="mt-auto flex items-center justify-between border-t border-white/[0.03] pt-4">
+                                <div class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest ${percentage > 0 ? 'text-[var(--color-primary)]' : 'text-[var(--text-muted)]'}">
+                                    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                                    <span>${completed}/${lessons} Clases</span>
+                                </div>
+                                <span class="text-[9px] font-mono text-[var(--text-muted)] group-hover:text-white/40 transition-colors">${c.total_size || '0 B'}</span>
+                            </div>
+                        </div>
+                    `;
+
                     row.appendChild(card);
                 });
                 section.appendChild(row);
                 grid.appendChild(section);
             }
             lucide.createIcons();
+            updateCourseMetrics();
         }
 
+        function renderTrackingTable() {
+            const tbody = document.getElementById('trackingTableBody');
+            const empty = document.getElementById('trackingEmpty');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const items = Object.entries(allCourses).sort((a, b) => {
+                const progA = progressCache.by_slug?.[a[0]]?.porcentaje || 0;
+                const progB = progressCache.by_slug?.[b[0]]?.porcentaje || 0;
+                return progB - progA;
+            });
+
+            if (items.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            items.forEach(([slug, c]) => {
+                const school = getSchoolForCourse(slug);
+                const progress = progressCache.by_slug?.[slug] || { porcentaje: 0, completadas: 0 };
+                const lessons = c.total_lessons || 0;
+                const percentage = Math.round(progress.porcentaje) || 0;
+                const isDeleted = c.exists === false;
+
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-white/[.01] transition-colors ${isDeleted ? 'opacity-50' : ''}`;
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/5 p-1">
+                                <img src="/api/assets/assetmadre/badges/${slug}.png" class="w-full h-full object-contain" onerror="this.src='${FALLBACK_LOGO_SVG}'">
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-white">${c.title}</div>
+                                <div class="text-[10px] text-[var(--text-muted)] font-mono uppercase">${slug}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[var(--text-secondary)]">
+                            ${school.name}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 h-1.5 w-24 bg-white/5 rounded-full overflow-hidden">
+                                <div class="h-full bg-[var(--color-primary)] shadow-[var(--glow-primary)]" style="width: ${percentage}%"></div>
+                            </div>
+                            <span class="text-[10px] font-black text-white">${percentage}%</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-[10px] font-black text-[var(--text-secondary)]">${progress.completadas}/${lessons}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        ${isDeleted 
+                            ? '<span class="text-[8px] font-black px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20 uppercase tracking-tighter">Eliminado</span>'
+                            : (percentage >= 100 
+                                ? '<span class="text-[8px] font-black px-2 py-0.5 rounded bg-[#00f2a1]/10 text-[#00f2a1] border border-[#00f2a1]/20 uppercase tracking-tighter">Completado</span>'
+                                : '<span class="text-[8px] font-black px-2 py-0.5 rounded bg-white/5 text-[var(--text-muted)] border border-white/10 uppercase tracking-tighter">En Curso</span>')}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <button onclick="openPlayer('${slug}')" class="p-2 rounded-xl hover:bg-white/10 text-[var(--color-primary)] transition-all" ${isDeleted ? 'disabled' : ''}>
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+
         // ============ Player ============
+        let currentCourseProgress = { porcentaje: 0, lecciones: {} };
+
         async function openPlayer(slug) {
-            const r = await fetch(`/api/course-content/${slug}`);
-            const data = await r.json();
-            if (!r.ok) return alert(data.message);
+            currentCourseSlug = slug;
+            
+            // Start fetching content and progress in parallel
+            const [contentRes, progressRes] = await Promise.all([
+                fetch(`/api/course-content/${slug}`),
+                fetch(`/api/progress/${slug}`)
+            ]);
+            
+            const data = await contentRes.json();
+            if (!contentRes.ok) return alert(data.message);
+            
+            currentCourseProgress = await progressRes.json();
 
             const c = allCourses[slug] || {};
             document.getElementById('playerCourseTitle').innerText = data.title;
@@ -877,21 +1109,31 @@
                 ch.lessons.forEach(l => {
                     const idx = playlist.length;
                     lessonGlobal++;
-                    playlist.push({ ...l, chapterName: ch.name });
+                    
+                    // Create a unique lesson ID for tracking
+                    const lessonId = l.filename.split(' - ')[0] || l.filename;
+                    playlist.push({ ...l, chapterName: ch.name, lessonId: lessonId });
+
+                    const isViewed = currentCourseProgress.lecciones && currentCourseProgress.lecciones[lessonId]?.visto;
 
                     const row = document.createElement('div');
                     row.id = `pi-${idx}`;
-                    row.className = 'lesson-row';
+                    row.className = `lesson-row flex items-center gap-3 p-3 rounded-xl transition-all cursor-pointer hover:bg-white/5 ${isViewed ? 'viewed-lesson' : ''}`;
                     row.onclick = () => playVideo(idx);
 
                     row.innerHTML = `
-                <div class="step-num">${lessonGlobal}</div>
-                <div class="lesson-thumb" style="background:#1e1e1e;">
+                <div class="step-num shrink-0 ${isViewed ? 'bg-sky-400 text-black border-none' : ''}">
+                    ${isViewed ? '<i data-lucide="check" class="w-3 h-3"></i>' : lessonGlobal}
+                </div>
+                <div class="lesson-thumb shrink-0 relative overflow-hidden" style="background:#1e1e1e;">
                     ${l.thumbnail_url ? `<img src="${l.thumbnail_url}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" loading="lazy">` : (c.thumbnail_url ? `<img src="${c.thumbnail_url}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;opacity:0.6;" loading="lazy">` : '')}
                 </div>
                 <div style="flex:1;min-width:0;">
-                    <div style="font-size:12px;font-weight:600;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;">${l.title}</div>
-                    ${l.duration ? `<div style="font-size:10px;color:#555;margin-top:3px;">${l.duration}</div>` : ''}
+                    <div style="font-size:12px;font-weight:600;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical; ${isViewed ? 'color:#888;' : ''}">${l.title}</div>
+                    <div style="font-size:10px;color:#555;margin-top:3px;">
+                        ${l.duration ? l.duration : ''}
+                        ${isViewed ? '<span style="color:#0ea5e9; font-weight:800; margin-left:8px; text-transform:uppercase; font-size:9px;">Visto</span>' : ''}
+                    </div>
                 </div>
             `;
                     wrap.appendChild(row);
@@ -913,10 +1155,14 @@
             if (playlist.length > 0) playVideo(savedIdx);
         }
 
+
+        let markLock = false;
+
         function playVideo(idx) {
             if (idx < 0 || idx >= playlist.length) return;
             currentIndex = idx;
             const l = playlist[idx];
+            markLock = false; // Reset lock for new video
 
             if (currentCourseSlug) {
                 localStorage.setItem('platzi_progress_' + currentCourseSlug, JSON.stringify({ lastIdx: idx }));
@@ -931,8 +1177,49 @@
 
             const v = document.getElementById('mainVideo');
             v.src = l.url;
+            
+            // Inject Auto-mark logic
+            v.ontimeupdate = async () => {
+                if (markLock) return;
+                
+                const pct = v.currentTime / v.duration;
+                if (pct > 0.8) {
+                    markLock = true;
+                    console.log(`[Progress] Marking ${l.lessonId} as viewed (Auto)`);
+                    
+                    try {
+                        const r = await fetch(`/api/progress/${currentCourseSlug}/${l.lessonId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ visto: true, tipo_marcado: "automatico" })
+                        });
+                        
+                        if (r.ok) {
+                            // Update internal state
+                            if (!currentCourseProgress.lecciones) currentCourseProgress.lecciones = {};
+                            currentCourseProgress.lecciones[l.lessonId] = { visto: true, tipo_marcado: 'automatico' };
+                            
+                            // Visual feedback in playlist
+                            const row = document.getElementById(`pi-${currentIndex}`);
+                            if (row) {
+                                const stepNum = row.querySelector('.step-num');
+                                if (stepNum && !stepNum.innerHTML.includes('check')) {
+                                    stepNum.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i>';
+                                    stepNum.className = 'step-num shrink-0 bg-sky-400 text-black border-none';
+                                    lucide.createIcons();
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Error auto-marking progress", e);
+                        markLock = false; // Retry maybe?
+                    }
+                }
+            };
+            
             v.play().catch(() => { });
         }
+
 
         function playNext() { if (currentIndex < playlist.length - 1) playVideo(currentIndex + 1); }
         function playPrev() { if (currentIndex > 0) playVideo(currentIndex - 1); }
@@ -1000,33 +1287,75 @@
             try {
                 const r = await fetch('/api/me');
                 const data = await r.json();
+                
+                // Update Sidebar Auth Status
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('loginStatusTextSidebar');
+                const userName = document.getElementById('userNameSidebar');
+                const userAvatar = document.getElementById('userAvatarSidebar');
 
+                if (data.logged_in) {
+                    if (statusDot) { statusDot.classList.remove('bg-red-500', 'shadow-[0_0_10px_#ef444466]'); statusDot.classList.add('bg-[#00f2a1]', 'shadow-[var(--glow-primary)]'); }
+                    if (statusText) statusText.innerText = 'Conectado';
+                    if (userName) userName.innerText = data.name || data.email || 'Platzi User';
+                    if (userAvatar) {
+                        userAvatar.innerHTML = data.avatar 
+                            ? `<img src="${data.avatar}" class="w-full h-full object-cover rounded-full">`
+                            : `<i data-lucide="user" class="w-4 h-4 text-[#00f2a1]"></i>`;
+                        lucide.createIcons();
+                    }
+                } else {
+                    if (statusDot) { statusDot.classList.add('bg-red-500', 'shadow-[0_0_10px_#ef444466]'); statusDot.classList.remove('bg-[#00f2a1]', 'shadow-[var(--glow-primary)]'); }
+                    if (statusText) statusText.innerText = 'Desconectado';
+                    if (userName) userName.innerText = 'Invitado';
+                    if (userAvatar) userAvatar.innerHTML = `<i data-lucide="user-x" class="w-4 h-4 text-red-400"></i>`;
+                    lucide.createIcons();
+                }
+
+                // Update Login Views if they exist
                 const platziLogged = document.getElementById('platziLoggedView');
                 const platziLogin = document.getElementById('platziLoginView');
                 const platziBadge = document.getElementById('platziStatusBadge');
                 const platziEmail = document.getElementById('platziUserEmail');
 
                 if (data.logged_in) {
-                    platziLogged.classList.remove('hidden');
-                    platziLogin.classList.add('hidden');
-                    platziEmail.innerText = data.email;
-                    platziBadge.innerText = 'Conectado';
-                    platziBadge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-500/10 text-sky-400 border border-sky-500/20';
+                    if (platziLogged) platziLogged.classList.remove('hidden');
+                    if (platziLogin) platziLogin.classList.add('hidden');
+                    if (platziEmail) platziEmail.innerText = data.email || 'Conectado';
+                    if (platziBadge) {
+                        platziBadge.innerText = 'Conectado';
+                        platziBadge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-500/10 text-sky-400 border border-sky-500/20';
+                    }
+                    // Navigation logic
+                    const loginView = document.getElementById('loginView');
+                    const downloadView = document.getElementById('downloadView');
+                    if (loginView) loginView.classList.add('hidden');
+                    if (downloadView) downloadView.classList.remove('hidden');
                 } else {
-                    platziLogged.classList.add('hidden');
-                    platziLogin.classList.remove('hidden');
-                    platziBadge.innerText = 'Desconectado';
-                    platziBadge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/10 text-red-400 border border-red-500/20';
+                    if (platziLogged) platziLogged.classList.add('hidden');
+                    if (platziLogin) platziLogin.classList.remove('hidden');
+                    if (platziBadge) {
+                        platziBadge.innerText = 'Desconectado';
+                        platziBadge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/10 text-red-400 border border-red-500/20';
+                    }
+                    const loginView = document.getElementById('loginView');
+                    const downloadView = document.getElementById('downloadView');
+                    if (loginView) loginView.classList.remove('hidden');
+                    if (downloadView) downloadView.classList.add('hidden');
                 }
-            } catch (e) { }
+            } catch (e) {
+                console.error("Error checking session", e);
+            }
             lucide.createIcons();
         }
+
+        // Auto-check session every 30 seconds
+        setInterval(checkSession, 30000);
 
         async function logout() {
             if (confirm('¿Cerrar sesión de Platzi?')) {
                 await fetch('/api/logout', { method: 'POST' });
-                document.getElementById('loginWarning').innerText = "Sesión cerrada. Inicia sesión nuevamente.";
-                checkSession();
+                checkSession(); // This will update both sidebar and account views
             }
         }
 
@@ -1182,29 +1511,8 @@
                 const st = driveCourseStatus[slug] || {};
                 const catalogData = findCourseInCatalog(slug);
 
-                // Resolve Logo
-                let logo = null;
-                const resolvePath = (p) => {
-                    if (!p || p.startsWith('http') || p.startsWith('data:') || p.startsWith('/api/')) return p;
-                    return `/api/assets/${p.replace(/^\/+/, '')}`.replace(/([^:])\/\//g, '$1/');
-                };
-
-                // Priority 1: Catalog local badge
-                if (catalogData && catalogData.badge_local) {
-                    logo = resolvePath(catalogData.badge_local);
-                }
-
-                // Priority 2: History logo url
-                if (!logo && c.logo_url) {
-                    logo = resolvePath(c.logo_url);
-                }
-
-                // Priority 3: Predictable assetmadre path
-                if (!logo) {
-                    logo = `/api/assets/assetmadre/${slug}/logo.png`;
-                }
-
-                const displayLogo = (logo === 'FALLBACK_LOGO_SVG' || !logo) ? FALLBACK_LOGO_SVG : logo;
+                // Priority: assetmadre path
+                const logo = `/api/assets/assetmadre/badges/${slug}.png`;
 
                 const synced = st.synced;
                 const checked = driveSelected.has(slug) ? 'checked' : '';
@@ -1237,7 +1545,7 @@
                 html += `<tr class="border-b border-white/5 hover:bg-white/[.03] transition">
             <td class="p-4"><input type="checkbox" class="drive-cb accent-sky-500 w-4 h-4 rounded cursor-pointer" data-slug="${slug}" ${checked} onchange="toggleDriveSelect('${slug}', this.checked)"></td>
             <td class="p-4"><div class="flex items-center gap-3">
-                <img src="${displayLogo}" class="w-9 h-9 rounded-full bg-[#1e2235] border border-white/10 object-contain p-1 flex-shrink-0" onerror="this.src='${FALLBACK_LOGO_SVG}'">
+                <img src="${logo}" class="w-9 h-9 rounded-full bg-[#1e2235] border border-white/10 object-contain p-1 flex-shrink-0" onerror="this.src='${FALLBACK_LOGO_SVG}'">
                 <div class="min-w-0"><div class="text-sm font-semibold truncate">${c.title}</div><div class="text-[11px] text-slate-500">${c.author || 'Platzi'}</div></div>
             </div></td>
             <td class="p-4">${statusBadge}</td>
@@ -1551,10 +1859,10 @@
                 el.querySelector('.gdp-detail').innerText = msg.message;
             }
         }
-        // === ACTIVITY LOGS (BITACORA) ===
+        // === REGISTRO MODULE (BITACORA DE EVENTOS) ===
         async function fetchActivityLogs() {
             try {
-                const r = await fetch('/api/activity?limit=100');
+                const r = await fetch('/api/log/events?limit=100');
                 const data = await r.json();
                 renderActivityTable(data.events || []);
             } catch (e) { console.error("Error fetching activity logs", e); }
@@ -1894,72 +2202,124 @@
             document.getElementById('catalogBreadcrumbs').classList.add('hidden');
 
             const container = document.getElementById('catalogContent');
-            container.innerHTML = '<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="schoolsGrid"></div>';
+            container.innerHTML = `
+                <div class="mb-10 flex flex-wrap gap-4 items-center justify-between animate-in fade-in duration-700">
+                    <div class="flex items-center gap-6">
+                        <div class="px-6 py-3 rounded-2xl bg-white/[0.03] border border-white/5 flex flex-col relative overflow-hidden group">
+                           <div class="absolute top-0 right-0 w-12 h-12 bg-[var(--color-primary)]/10 rounded-bl-full filter blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            <span class="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--color-primary)] mb-0.5">Directorio</span>
+                            <span class="text-xl font-black font-heading text-white">${schools.length} Escuelas</span>
+                        </div>
+                        <div class="h-10 w-px bg-white/10 hidden md:block"></div>
+                        <div class="hidden md:flex flex-col">
+                            <span class="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-0.5">Explorar Contenido</span>
+                            <span class="text-sm font-medium text-[var(--text-secondary)]">Elige una escuela para ver especializaciones</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="schoolsGrid"></div>
+            `;
 
             const grid = document.getElementById('schoolsGrid');
 
             schools.forEach((s) => {
                 const el = document.createElement('div');
-                el.className = 'group bg-[#1a1a1a] border border-white/10 rounded-3xl p-6 cursor-pointer hover:bg-white/5 transition-all hover:-translate-y-1 hover:shadow-2xl hover:border-sky-500/30 overflow-hidden relative';
+                const color = s.color || '#00f2a1';
+                const emblem = s.emblema_local ? `/api/assets/${s.emblema_local}` : null;
+                
+                el.className = 'group glass glass-hover relative rounded-3xl p-6 cursor-pointer transition-all duration-500 hover:-translate-y-2 flex flex-col h-full active:scale-95';
+                el.style.setProperty('--school-color', color);
+                
                 el.onclick = () => renderCatalogPaths(s.rutas || s.paths || [], s.nombre || s.title, schools);
 
-                const emblem = s.emblema_local ? `/api/assets/${s.emblema_local}` : null;
-                const color = s.color || '#38bdf8';
-
                 el.innerHTML = `
-            <div class="flex items-center gap-5 mb-4">
-                <div class="w-16 h-16 rounded-2xl bg-white/5 p-2 flex items-center justify-center border border-white/10 group-hover:border-sky-500/20 transition-all">
-                   ${emblem ? `<img src="${emblem}" class="w-full h-full object-contain" onerror="this.src='https://static.platzi.com/static/images/platzi-logo-symbol.a1ba2e33d26f.png'">` : `<div class="font-black text-2xl uppercase" style="color:${color}">${(s.nombre || s.title).charAt(0)}</div>`}
-                </div>
-                <div class="min-w-0">
-                    <h3 class="font-black text-lg leading-tight truncate text-white">${s.nombre || s.title}</h3>
-                    <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest mt-1">${(s.rutas || s.paths || []).length} Rutas</p>
-                </div>
-            </div>
-            <div class="absolute bottom-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, transparent, ${color}22, transparent)"></div>
-        `;
+                    <div class="absolute inset-0 bg-gradient-to-br from-[var(--school-color)]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                    
+                    <div class="flex flex-col flex-1 relative z-10">
+                        <div class="w-24 h-24 rounded-[32px] bg-black/60 border border-white/10 flex items-center justify-center p-5 group-hover:scale-110 group-hover:border-[var(--school-color)] group-hover:shadow-[0_0_30px_rgba(0,0,0,0.5),0_0_20px_var(--school-color)22] transition-all duration-700 shadow-2xl mb-8 relative">
+                           <div class="absolute inset-0 rounded-[32px] bg-[var(--school-color)]/5 opacity-0 group-hover:opacity-100 transition-opacity blur-xl"></div>
+                           ${emblem ? `<img src="${emblem}" class="w-full h-full object-contain filter drop-shadow-[0_8px_16px_${color}66] animate-float relative z-10" onerror="this.src='${FALLBACK_LOGO_SVG}'">` : `<div class="font-black text-4xl uppercase relative z-10" style="color:${color}">${(s.nombre || s.title).charAt(0)}</div>`}
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <h3 class="font-black text-2xl leading-tight text-white group-hover:text-[var(--school-color)] transition-colors line-clamp-2">${s.nombre || s.title}</h3>
+                            <div class="flex items-center gap-3">
+                                <span class="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-wider text-[var(--text-muted)] group-hover:text-white/60 group-hover:border-white/10 transition-colors">${(s.rutas || s.paths || []).length} Especialidades</span>
+                                <div class="w-2 h-2 rounded-full" style="background:${color}; box-shadow: 0 0 10px ${color}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 flex items-center justify-between relative z-10 pt-6 border-t border-white/[0.05]">
+                        <div class="flex items-center gap-2">
+                            <div class="flex -space-x-2">
+                                ${[1, 2, 3].map(i => `<div class="w-6 h-6 rounded-full border-2 border-[var(--color-surface-1)] bg-white/5 group-hover:border-white/10 transition-colors"></div>`).join('')}
+                            </div>
+                            <span class="text-[9px] font-black uppercase tracking-[0.1em] text-white/20 group-hover:text-white/40 transition-colors">Explorar rutas</span>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl glass flex items-center justify-center group-hover:bg-[var(--school-color)] group-hover:text-black shadow-lg transition-all duration-500">
+                            <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                `;
                 grid.appendChild(el);
             });
+            lucide.createIcons();
         }
 
         function renderCatalogPaths(paths, schoolName, schoolsData) {
             const breadcrumbs = document.getElementById('catalogBreadcrumbs');
             breadcrumbs.classList.remove('hidden');
             breadcrumbs.innerHTML = `
-        <span class="cursor-pointer hover:text-white transition flex items-center gap-1" onclick="renderCatalogSchools(catalogCache.schools)">
-            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Escuelas
-        </span>
-        <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
-        <span class="text-white font-bold">${schoolName}</span>
-    `;
+                <span class="cursor-pointer hover:text-white transition flex items-center gap-1" onclick="renderCatalogSchools(catalogCache.schools)">
+                    <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Escuelas
+                </span>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
+                <span class="text-white font-bold">${schoolName}</span>
+            `;
             lucide.createIcons();
 
             const container = document.getElementById('catalogContent');
-            container.innerHTML = '<div class="space-y-4" id="pathsList"></div>';
+            container.innerHTML = `
+                <div class="mb-8">
+                    <h2 class="text-3xl font-black font-heading text-white">Rutas de Aprendizaje</h2>
+                    <p class="text-[var(--text-secondary)] text-sm">Contenido estructurado para dominar la industria.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="pathsList"></div>
+            `;
             const list = document.getElementById('pathsList');
 
             if (paths.length === 0) {
-                list.innerHTML = '<p class="text-center text-slate-500 py-10">No hay rutas disponibles en esta escuela.</p>';
+                list.innerHTML = '<p class="text-center text-[var(--text-muted)] py-10 col-span-full">No hay rutas disponibles en esta escuela.</p>';
                 return;
             }
 
             paths.forEach(p => {
                 const el = document.createElement('div');
-                el.className = 'group bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all hover:pl-8 hover:border-sky-500/20';
+                el.className = 'group glass glass-hover relative rounded-[var(--radius-xl)] p-6 flex items-center justify-between cursor-pointer transition-all hover:border-[var(--color-primary)]/30';
                 el.onclick = () => renderCatalogCourses(p.cursos || p.courses || [], p.nombre_ruta || p.title, schoolName);
 
+                const coursesCount = (p.cursos || p.courses || []).length;
+
                 el.innerHTML = `
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-400 opacity-50 group-hover:opacity-100 transition-opacity">
-                    <i data-lucide="route" class="w-5 h-5"></i>
-                </div>
-                <div>
-                    <h4 class="font-bold text-lg text-slate-200 group-hover:text-white transition-colors">${p.nombre_ruta || p.title}</h4>
-                    <p class="text-xs text-slate-500 font-medium">${(p.cursos || p.courses || []).length} Cursos estructurados</p>
-                </div>
-            </div>
-            <i data-lucide="chevron-right" class="w-6 h-6 text-slate-700 group-hover:text-sky-400 group-hover:translate-x-1 transition-all"></i>
-        `;
+                    <div class="flex items-center gap-6">
+                        <div class="w-14 h-14 rounded-2xl bg-[var(--color-primary-dim)] flex items-center justify-center text-[var(--color-primary)] group-hover:scale-110 transition-transform">
+                            <i data-lucide="route" class="w-7 h-7"></i>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-xl text-white group-hover:text-[var(--color-primary)] transition-colors">${p.nombre_ruta || p.title}</h4>
+                            <div class="flex items-center gap-3">
+                                <span class="bg-white/5 border border-white/5 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">Cursos: ${coursesCount}</span>
+                                <div class="flex -space-x-1.5 opacity-50">
+                                    ${(p.cursos || []).slice(0, 4).map(c => `<div class="w-4 h-4 rounded-full bg-white/20 border border-black"></div>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-[var(--text-muted)] group-hover:text-white transition-all">
+                        <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                    </div>
+                `;
                 list.appendChild(el);
             });
             lucide.createIcons();
@@ -1969,174 +2329,321 @@
             window.location.hash = `curso/${slug}`;
         }
 
-        function cargarVistaCurso(slug) {
-            switchView('curso');
-
-            const content = document.getElementById('cursoContenido');
-            const titleEl = document.getElementById('cursoTitulo');
-            const metaEl = document.getElementById('cursoMeta');
-            const logoEl = document.getElementById('cursoLogo');
-
-            content.innerHTML = `
-                <div class="flex flex-col items-center justify-center py-20 space-y-4">
-                    <div class="w-10 h-10 border-4 border-sky-500/30 border-t-sky-500 rounded-full animate-spin"></div>
-                    <p class="text-sm text-slate-500 font-medium">Buscando contenido del curso...</p>
-                </div>
-            `;
-
-            let course = null;
-            let schoolName = "";
-
-            if (catalogCache && catalogCache.schools) {
-                for (const s of catalogCache.schools) {
-                    for (const p of (s.rutas || [])) {
-                        const found = (p.cursos || []).find(c => (c.slug === slug || c.id === slug));
-                        if (found) { course = found; schoolName = s.nombre || s.title; break; }
-                    }
-                    if (course) break;
-                }
-            }
-            if (!course && allCourses && allCourses[slug]) {
-                course = { slug, title: allCourses[slug].title, level: allCourses[slug].level };
-            }
-
-            titleEl.textContent = (course && (course.title || course.nombre)) || slug;
-            metaEl.textContent = schoolName ? `Escuela de ${schoolName}` : 'Cargando...';
-
-            let badge = (course && course.badge_local) ? `/api/assets/${course.badge_local}` : FALLBACK_LOGO_SVG;
-            logoEl.innerHTML = `<img src="${badge}" class="w-full h-full object-contain" onerror="this.src='${FALLBACK_LOGO_SVG}'">`;
-
-            fetch(`/api/syllabus/${slug}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.status === 'cached' || data.status === 'ok') {
-                        const info = data.data;
-                        const metaParts = [];
-                        if (schoolName) metaParts.push(`Escuela de ${schoolName}`);
-                        if (info.total_lessons) metaParts.push(`${info.total_lessons} lecciones`);
-                        if (info.total_duration) metaParts.push(info.total_duration);
-                        metaEl.textContent = metaParts.join(' • ');
-                        renderSyllabusDetails(info.chapters);
-                    } else if (data.status === 'not_found') {
-                        content.innerHTML = `
-                            <div class="flex flex-col items-center justify-center py-20 space-y-4 text-center">
-                                <div class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl">🔍</div>
-                                <p class="text-slate-300 font-semibold">Syllabus no disponible en caché</p>
-                                <p class="text-slate-500 text-sm max-w-sm">Ejecuta el crawler para pre-cargar los syllabus:<br>
-                                <code class="mt-2 inline-block bg-white/5 px-3 py-1 rounded text-emerald-400 text-xs font-mono">python scripts/syllabus_crawler.py</code></p>
-                            </div>
-                        `;
-                    } else {
-                        content.innerHTML = `<div class="text-center py-20 text-slate-500">Error al cargar el syllabus.</div>`;
-                    }
-                })
-                .catch(() => {
-                    content.innerHTML = `<div class="text-center py-20 text-slate-500">Error de conexión al servidor.</div>`;
-                });
+        // Navigation helpers for course detail view
+        function cambiarSeccion(viewId) {
+            // Alias for switchView that accepts full section IDs
+            const clean = viewId.replace('view-', '');
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            const target = document.getElementById(viewId) || document.getElementById('view-' + clean);
+            if (target) target.classList.add('active');
         }
 
         function volverAlCatalogo() {
             window.location.hash = 'catalogo';
+            switchView('catalogo');
+        }
+
+        async function cargarVistaCurso(slug) {
+            cambiarSeccion('view-curso');
+            
+            // Set the global course slug so syllabus checkboxes can reference it
+            currentCourseSlug = slug;
+            
+            const heroBg = document.getElementById('cursoHeroBg');
+            const logoContainer = document.getElementById('cursoLogo');
+            const titleEl = document.getElementById('cursoTitulo');
+            const tagsEl = document.getElementById('cursoTags');
+            const metaEl = document.getElementById('cursoMeta');
+            const syllabusContainer = document.getElementById('syllabusContainer');
+            const durationEl = document.getElementById('infoDuration');
+            const lessonsEl = document.getElementById('infoLessons');
+
+            // Reset UI State
+            heroBg.style.backgroundImage = '';
+            logoContainer.innerHTML = '<div class="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin"></div>';
+            titleEl.textContent = 'Cargando...';
+            tagsEl.innerHTML = '';
+            metaEl.innerHTML = '';
+            syllabusContainer.innerHTML = '<div class="py-20 text-center opacity-20"><i data-lucide="loader" class="w-16 h-16 mx-auto mb-4 animate-spin"></i><p class="text-sm font-bold">Cargando...</p></div>';
+            lucide.createIcons();
+
+            try {
+                // Pre-hydration from cache if available
+                let course = null;
+                let sName = "Platzi";
+
+                if (catalogCache && catalogCache.schools) {
+                    for (const s of catalogCache.schools) {
+                        for (const p of (s.rutas || [])) {
+                            const found = (p.cursos || []).find(c => c.slug === slug);
+                            if (found) { course = found; sName = s.nombre || s.title; break; }
+                        }
+                        if (course) break;
+                    }
+                }
+
+                // Fetch course detail and progress in parallel
+                const [catalogRes, progressRes] = await Promise.all([
+                    fetch(`/api/catalog/courses/${slug}`),
+                    fetch(`/api/progress/${slug}`)
+                ]);
+                
+                const data = await catalogRes.json();
+                currentCourseProgress = await progressRes.json();
+                
+                // Resolve assets - strictly use assetmadre per user requirements
+                let thumb = `/api/assets/assetmadre/thumbnails/${slug}.jpg`;
+                let badge = `/api/assets/assetmadre/badges/${slug}.png`;
+                
+                heroBg.style.backgroundImage = `url('${thumb}')`;
+                logoContainer.innerHTML = `<img src="${badge}" class="w-full h-full object-contain filter drop-shadow-2xl" onerror="this.src='${FALLBACK_LOGO_SVG}'">`;
+                titleEl.textContent = data.titulo || data.title;
+                
+                // Calculate viewed count from progress
+                const viewedCount = Object.values(currentCourseProgress.lecciones || {}).filter(l => l.visto).length;
+                const totalLessons = data.lessons_count || 0;
+                const pctComplete = totalLessons > 0 ? Math.round((viewedCount / totalLessons) * 100) : 0;
+                
+                tagsEl.innerHTML = `
+                    <span class="px-2 py-1 rounded-md bg-[var(--color-primary)] text-black text-[9px] font-black uppercase tracking-widest">Premium</span>
+                    <span class="px-2 py-1 rounded-md bg-white/10 text-white text-[9px] font-black uppercase tracking-widest">${data.level || 'Básico'}</span>
+                    ${pctComplete > 0 ? `<span class="px-2 py-1 rounded-md ${pctComplete >= 100 ? 'bg-[#00f2a1]/20 text-[#00f2a1]' : 'bg-sky-500/20 text-sky-400'} text-[9px] font-black uppercase tracking-widest">${pctComplete}% Completado</span>` : ''}
+                `;
+
+                metaEl.innerHTML = `
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="graduation-cap" class="w-4 h-4 opacity-50"></i>
+                        <span>Escuela: <b class="text-white">${data.school_name || sName}</b></span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="check-circle" class="w-4 h-4 opacity-50"></i>
+                        <span>${viewedCount}/${totalLessons} Lecciones vistas</span>
+                    </div>
+                `;
+
+                durationEl.textContent = data.duration || 'A tu ritmo';
+                lessonsEl.textContent = `${totalLessons} Clases`;
+                
+                // Wire up the "Comenzar Curso" button
+                const btnAction = document.getElementById('btnActionTop');
+                if (btnAction) {
+                    if (allCourses[slug] && allCourses[slug].exists !== false) {
+                        btnAction.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Reproducir Curso';
+                        btnAction.onclick = () => openPlayer(slug);
+                    } else {
+                        btnAction.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i> Descargar Curso';
+                        btnAction.onclick = () => { document.getElementById('courseUrl').value = `https://platzi.com/cursos/${slug}/`; switchView('descargar'); };
+                    }
+                }
+
+                if (data.syllabus && data.syllabus.length > 0) {
+                    renderSyllabusDetails(data.syllabus);
+                } else {
+                    // Fallback to separate syllabus API
+                    fetchSyllabusFallback(slug);
+                }
+
+                lucide.createIcons();
+            } catch (err) {
+                console.error("Error Detail View:", err);
+                titleEl.textContent = 'Error al cargar curso';
+            }
+        }
+
+        async function fetchSyllabusFallback(slug) {
+            try {
+                const res = await fetch(`/api/syllabus/${slug}`);
+                const data = await res.json();
+                if (data.status === 'ok' || data.status === 'cached') {
+                    renderSyllabusDetails(data.data.chapters);
+                } else {
+                     document.getElementById('syllabusContainer').innerHTML = `
+                        <div class="glass p-12 rounded-[var(--radius-xl)] text-center">
+                            <i data-lucide="file-warning" class="w-12 h-12 mx-auto mb-4 text-amber-500 opacity-50"></i>
+                            <h3 class="text-white font-bold mb-1">Syllabus no disponible</h3>
+                            <p class="text-xs text-[var(--text-muted)] mb-4">Este curso requiere ser crawlerizado para ver el contenido.</p>
+                            <code class="text-[9px] bg-black/40 p-2 rounded text-[var(--color-primary)] font-mono">python scripts/syllabus_crawler.py ${slug}</code>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function toggleLessonProgress(slug, lessonId, currentStatus) {
+            const newState = !currentStatus;
+            try {
+                const r = await fetch(`/api/progress/${slug}/${lessonId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ visto: newState, tipo_marcado: "manual" })
+                });
+                if (r.ok) {
+                    // Update global cache
+                    if (!currentCourseProgress.lecciones) currentCourseProgress.lecciones = {};
+                    currentCourseProgress.lecciones[lessonId] = { visto: newState, tipo_marcado: 'manual' };
+                    
+                    // Refresh current view
+                    fetchHistory(); // Updates dashboard/grid metrics
+                    
+                    // Visual feedback for the checkbox
+                    const cb = document.querySelector(`[data-lesson-cb="${lessonId}"]`);
+                    if (cb) {
+                        cb.classList.toggle('bg-[var(--color-primary)]', newState);
+                        cb.classList.toggle('border-[var(--color-primary)]', newState);
+                        cb.innerHTML = newState ? '<i data-lucide="check" class="w-3 h-3 text-black"></i>' : '';
+                        lucide.createIcons();
+                    }
+                    
+                    // Update lesson row style if in player
+                    const row = document.querySelector(`[data-lesson-row="${lessonId}"]`);
+                    if (row) {
+                        row.classList.toggle('opacity-50', newState);
+                        const step = row.querySelector('.step-num');
+                        if (step) {
+                            step.classList.toggle('bg-sky-400', newState);
+                            step.classList.toggle('text-black', newState);
+                            step.classList.toggle('border-none', newState);
+                            step.innerHTML = newState ? '<i data-lucide="check" class="w-3 h-3"></i>' : step.dataset.origNum;
+                            lucide.createIcons();
+                        }
+                    }
+                }
+            } catch (e) { console.error("Error updating progress", e); }
         }
 
         function renderSyllabusDetails(chapters) {
-            const content = document.getElementById('cursoContenido');
-            let html = '';
+            const container = document.getElementById('syllabusContainer');
+            const slug = currentCourseSlug;
+            container.innerHTML = `<div class="mb-4"><h3 class="text-xl font-bold font-heading text-white">Contenido del Curso</h3></div>`;
 
-            chapters.forEach((ch, idx) => {
-                html += `
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-sky-400">${idx + 1}</span>
-                            <h4 class="text-base font-bold text-white uppercase tracking-tight">${ch.title}</h4>
+            chapters.forEach((ch, i) => {
+                const el = document.createElement('div');
+                el.className = 'glass rounded-[var(--radius-xl)] border-white/5 overflow-hidden transition-all mb-3';
+                const title = ch.title || ch.module_name || `Módulo ${i+1}`;
+                const lessons = ch.lessons || ch.classes || ch.units || [];
+
+                el.innerHTML = `
+                    <div class="p-5 flex items-center justify-between cursor-pointer hover:bg-white/[.02] active:bg-white/[.04] transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('.chevron-icon').classList.toggle('rotate-180');">
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center font-mono text-[10px] text-[var(--text-muted)] group-hover:bg-white/10 transition-colors">${i+1}</div>
+                            <h4 class="font-bold text-white text-sm">${title}</h4>
                         </div>
-                        <div class="grid grid-cols-1 gap-2 ml-11">
-                            ${ch.units.map(u => `
-                                <div class="group flex items-center justify-between p-3 rounded-xl bg-white/[.02] border border-white/5 hover:bg-white/[.04] hover:border-white/10 transition cursor-default">
-                                    <div class="flex items-center gap-3">
-                                        <i data-lucide="play-circle" class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 transition"></i>
-                                        <span class="text-sm text-slate-300 group-hover:text-white transition">${u.title}</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-[var(--text-muted)] transition-transform duration-300 chevron-icon"></i>
+                    </div>
+                    <div class="border-t border-white/5 bg-black/20 ${i===0 ? '' : 'hidden'}">
+                        <div class="divide-y divide-white/[.02]">
+                            ${lessons.map((l, j) => {
+                                const lessonId = l.id || l.slug || (l.filename ? l.filename.split(' - ')[0] : j);
+                                const isViewed = currentCourseProgress.lecciones && currentCourseProgress.lecciones[lessonId]?.visto;
+                                
+                                return `
+                                <div class="p-4 pl-6 flex items-center justify-between hover:bg-white/[.03] group/item transition-colors" data-lesson-row="${lessonId}">
+                                    <div class="flex items-center gap-4 flex-1">
+                                        <!-- Functional Checkbox -->
+                                        <div onclick="event.stopPropagation(); toggleLessonProgress('${slug}', '${lessonId}', ${isViewed})" 
+                                             data-lesson-cb="${lessonId}"
+                                             class="w-5 h-5 rounded-full border-2 border-white/10 flex items-center justify-center cursor-pointer transition-all hover:border-[var(--color-primary)]/50 ${isViewed ? 'bg-[var(--color-primary)] border-[var(--color-primary)]' : ''}">
+                                            ${isViewed ? '<i data-lucide="check" class="w-3 h-3 text-black"></i>' : ''}
+                                        </div>
+                                        
+                                        <div class="flex items-center gap-3 cursor-pointer" onclick="openPlayerWithLesson('${slug}', '${lessonId}')">
+                                            <div class="w-10 h-10 rounded-lg bg-white/5 overflow-hidden shrink-0 border border-white/5 group-hover/item:border-white/10 transition-all">
+                                                ${l.thumbnail_url ? `<img src="${l.thumbnail_url}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center bg-[var(--color-primary)]/5 text-[var(--color-primary)]"><i data-lucide="play" class="w-4 h-4 fill-current"></i></div>`}
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="text-sm font-semibold text-[var(--text-secondary)] group-hover/item:text-white transition-colors line-clamp-1">${l.title || l.nombre}</span>
+                                                <span class="text-[10px] font-mono text-[var(--text-muted)] group-hover/item:text-[var(--text-muted)]/80">${l.duration || '--:--'}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span class="text-[10px] font-bold text-slate-600 font-mono">${u.duration || ''}</span>
-                                </div>
-                            `).join('')}
+                                    <button onclick="openPlayerWithLesson('${slug}', '${lessonId}')" class="opacity-0 group-hover/item:opacity-100 p-2 rounded-lg bg-white/5 text-[var(--color-primary)] transition-all">
+                                        <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                                    </button>
+                                </div>`;
+                            }).join('')}
                         </div>
                     </div>
                 `;
+                container.appendChild(el);
             });
-
-            content.innerHTML = html;
             lucide.createIcons();
         }
 
-        function closeSyllabusModal() {
-            document.getElementById('syllabusModal').classList.add('hidden');
+        async function openPlayerWithLesson(slug, lessonId) {
+            // Check if the course is downloaded locally before opening player
+            if (allCourses[slug] && allCourses[slug].exists !== false) {
+                await openPlayer(slug);
+                const idx = playlist.findIndex(p => p.lessonId === lessonId);
+                if (idx !== -1) playVideo(idx);
+            } else {
+                // Course not downloaded - toggle the lesson as viewed manually
+                const isViewed = currentCourseProgress.lecciones?.[lessonId]?.visto;
+                toggleLessonProgress(slug, lessonId, isViewed);
+            }
         }
 
         function renderCatalogCourses(courses, pathName, schoolName) {
             const breadcrumbs = document.getElementById('catalogBreadcrumbs');
             breadcrumbs.innerHTML = `
-        <span class="cursor-pointer hover:text-white transition" onclick="renderCatalogSchools(catalogCache.schools)">Escuelas</span>
-        <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
-        <span class="cursor-pointer hover:text-white transition" onclick="renderCatalogPaths(catalogCache.schools.find(s=> (s.nombre||s.title) ==='${schoolName}')?.rutas || [], '${schoolName}', catalogCache.schools)">${schoolName}</span>
-        <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
-        <span class="text-white font-bold">${pathName}</span>
-    `;
+                <span class="cursor-pointer hover:text-white transition flex items-center gap-1" onclick="renderCatalogSchools(catalogCache.schools)">
+                    <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Escuelas
+                </span>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
+                <span class="cursor-pointer hover:text-white transition" onclick="renderCatalogPaths(catalogCache.paths_by_school['${schoolName}'], '${schoolName}')">${schoolName}</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-50"></i>
+                <span class="text-white font-bold">${pathName}</span>
+            `;
             lucide.createIcons();
 
             const container = document.getElementById('catalogContent');
-            container.innerHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="catCoursesGrid"></div>';
-            const grid = document.getElementById('catCoursesGrid');
-
-            if (courses.length === 0) {
-                container.innerHTML = '<p class="text-center text-slate-500 py-20">No hay cursos listados en esta ruta.</p>';
-                return;
-            }
+            container.innerHTML = `
+                <div class="mb-10 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-black font-heading text-white">Cursos de la Ruta</h2>
+                        <p class="text-[var(--text-secondary)] text-sm">${courses.length} cursos disponibles.</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="coursesGrid"></div>
+            `;
+            const grid = document.getElementById('coursesGrid');
 
             courses.forEach(c => {
-                const slug = c.slug || (c.title || c.nombre || '').toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, '');
-                const url = c.url || `https://platzi.com/cursos/${slug}`;
-                const isDownloaded = !!c.downloaded || (window.allCourses && !!window.allCourses[slug]);
-
-                const thumb = c.thumbnail_local ? `/api/assets/${c.thumbnail_local}` : null;
-                let badge = c.badge_local ? `/api/assets/${c.badge_local}` : null;
-
-                if (!badge) badge = FALLBACK_LOGO_SVG;
-
                 const el = document.createElement('div');
-                el.className = 'group bg-[#1a1a1a] border border-white/10 rounded-3xl overflow-hidden flex flex-col transition-all hover:border-sky-500/30 hover:shadow-2xl';
+                el.className = 'group glass glass-hover relative rounded-[var(--radius-xl)] p-4 cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl flex flex-col h-full overflow-hidden';
+                el.onclick = () => cargarVistaCurso(c.slug);
+
+                const isLocal = allCourses[c.slug] && allCourses[c.slug].exists !== false;
+                const badge = isLocal ? `/api/assets/assetmadre/badges/${c.slug}.png` : (c.badge_local ? `/api/assets/${c.badge_local}` : FALLBACK_LOGO_SVG);
+                const thumb = isLocal ? `/api/assets/assetmadre/thumbnails/${c.slug}.jpg` : (c.thumbnail_local ? `/api/assets/${c.thumbnail_local}` : FALLBACK_THUMBNAIL);
 
                 el.innerHTML = `
-            <div class="aspect-video bg-[#1e2235] relative overflow-hidden">
-                ${thumb ? `<img src="${thumb}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" onerror="this.outerHTML='<div class=\\'w-full h-full flex items-center justify-center bg-slate-800 text-slate-600 text-[10px] font-bold\\'>SIN MINIATURA</div>'">` : `<div class="w-full h-full flex items-center justify-center bg-slate-800 text-slate-600 text-[10px] font-bold">SIN MINIATURA</div>`}
-                ${isDownloaded ? '<div class="absolute top-4 right-4 bg-[#00f2a1] text-black text-[10px] font-black px-2.5 py-1.5 tracking-wider uppercase rounded-lg shadow-lg">Descargado</div>' : ''}
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
-            </div>
-            <div class="p-6 flex-1 flex flex-col relative">
-                <div class="absolute -top-8 right-6 w-14 h-14 rounded-full bg-[#1a1a1a] p-2 border border-white/10 shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <img src="${badge}" class="w-full h-full object-contain rounded-full" onerror="this.style.display='none'">
-                </div>
-                
-                <div class="flex items-center gap-2 mb-3">
-                    ${(() => {
-                        const lvl = c.level || '';
-                        const cls = lvl === 'Avanzado' ? 'bg-purple-500/15 text-purple-400 border-purple-500/20'
-                            : lvl === 'Intermedio' ? 'bg-sky-500/15 text-sky-400 border-sky-500/20'
-                                : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20';
-                        return lvl ? `<span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${cls}">${lvl}</span>` : '';
-                    })()}
-                </div>
-                
-                <h4 class="font-bold text-md leading-tight mb-5 flex-1 line-clamp-2 text-slate-100 group-hover:text-white transition-colors">${c.title || c.nombre}</h4>
-                
-                <div class="flex gap-2 mt-auto">
-                    <button onclick="downloadFromCatalog('${url}', '${slug}')" class="flex-1 bg-[#00f2a1] text-black text-xs font-black py-3 rounded-xl hover:brightness-110 transition-all shadow-lg shadow-[#00f2a1]/10 active:scale-95 uppercase tracking-widest">${isDownloaded ? '▶ Abrir' : 'Descargar'}</button>
-                    <button onclick="openSyllabus('${slug}')" class="px-4 bg-white/5 border border-white/10 text-slate-400 rounded-xl hover:bg-white/10 hover:text-white transition" title="Ver Lecciones">
-                        <i data-lucide="eye" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            </div>
-        `;
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10"></div>
+                    
+                    <div class="relative aspect-video rounded-xl overflow-hidden mb-4 border border-white/5 bg-black/20 z-0">
+                        <img src="${thumb}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onerror="this.src='${FALLBACK_THUMBNAIL}'">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-2 left-2 right-2 flex justify-between items-center z-20">
+                            <span class="px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md border border-white/10 text-[8px] font-black uppercase tracking-wider text-white">CURSO</span>
+                            <img src="${badge}" class="w-10 h-10 filter drop-shadow-xl animate-float" onerror="this.src='${FALLBACK_LOGO_SVG}'">
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col gap-2 relative z-20">
+                        <h4 class="font-bold text-sm leading-snug text-slate-100 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2">${c.title || c.nombre}</h4>
+                        <div class="mt-auto pt-3 flex items-center justify-between border-t border-white/5">
+                            <span class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">${c.level || 'Básico'}</span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="event.stopPropagation(); window.open('${c.url || `https://platzi.com/cursos/${c.slug}`}', '_blank')" class="px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-[xs] font-bold text-white transition-colors">
+                                    Ver
+                                </button>
+                                <button onclick="event.stopPropagation(); downloadFromCatalog('${c.url || `https://platzi.com/cursos/${c.slug}`}', '${c.slug}')" class="px-3 py-1 rounded bg-[var(--color-primary)] hover:brightness-110 text-black text-xs font-extrabold transition-all shadow-[var(--glow-primary)]">
+                                    Descargar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
                 grid.appendChild(el);
             });
             lucide.createIcons();

@@ -1,24 +1,73 @@
 <section id="view-curso" class="view-section">
-            <div class="mb-8">
-                <button onclick="volverAlCatalogo()"
-                    class="flex items-center gap-2 text-slate-400 hover:text-white transition mb-4">
+    <!-- Hero Header -->
+    <div class="relative h-[280px] rounded-[var(--radius-2xl)] overflow-hidden mb-8 border border-white/10 shadow-2xl group">
+        <!-- Background Thumbnail with Blur -->
+        <div id="cursoHeroBg" class="absolute inset-0 bg-cover bg-center scale-105 blur-sm opacity-30 transition-transform duration-1000 group-hover:scale-100"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[var(--color-bg)] via-[var(--color-bg)]/60 to-transparent"></div>
+        
+        <div class="absolute inset-0 p-8 flex flex-col justify-end">
+            <button onclick="volverAlCatalogo()" class="absolute top-6 left-6 flex items-center gap-2 text-[var(--text-secondary)] hover:text-white transition group/back">
+                <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover/back:bg-[var(--color-primary)] group-hover/back:text-black transition-all">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    <span class="text-sm font-bold">Volver al Catálogo</span>
+                </div>
+                <span class="text-xs font-black uppercase tracking-widest">Volver al Catálogo</span>
+            </button>
+
+            <div class="flex items-end gap-8">
+                <div id="cursoLogo" class="w-28 h-28 rounded-3xl bg-black/40 p-4 border border-white/10 flex items-center justify-center flex-shrink-0 animate-float shadow-2xl backdrop-blur-md">
+                    <!-- Badge will be injected here -->
+                </div>
+                <div class="flex-1 pb-2">
+                    <div id="cursoTags" class="flex gap-2 mb-4">
+                        <!-- Level tag will be injected here -->
+                    </div>
+                    <h2 id="cursoTitulo" class="text-4xl font-black font-heading mb-3 tracking-tighter text-white">Cargando...</h2>
+                    <div id="cursoMeta" class="flex items-center gap-4 text-[var(--text-secondary)] text-sm font-medium">
+                        <!-- School info & stats will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Syllabus Sections -->
+    <div id="cursoContenido" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Syllabus List (Left 2 cols) -->
+        <div id="syllabusContainer" class="lg:col-span-2 space-y-4">
+            <div class="py-20 text-center opacity-20">
+                <i data-lucide="loader" class="w-16 h-16 mx-auto mb-4 animate-spin"></i>
+                <p class="text-sm font-bold text-[var(--text-muted)]">Cargando syllabus...</p>
+            </div>
+        </div>
+        
+        <!-- Sidebar Info (Right 1 col) -->
+        <div class="space-y-6">
+            <div class="glass p-6 rounded-[var(--radius-xl)] border-white/5">
+                <h4 class="text-xs font-black uppercase tracking-widest text-[var(--text-muted)] mb-4">Sobre este curso</h4>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[var(--color-primary)]">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-[var(--text-muted)] uppercase font-bold">Duración</p>
+                            <p id="infoDuration" class="text-sm font-bold text-white">-</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[var(--color-secondary)]">
+                            <i data-lucide="play-circle" class="w-4 h-4"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-[var(--text-muted)] uppercase font-bold">Lecciones</p>
+                            <p id="infoLessons" class="text-sm font-bold text-white">-</p>
+                        </div>
+                    </div>
+                </div>
+                <button id="btnActionTop" class="w-full mt-8 bg-[var(--color-primary)] text-black font-black py-4 rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-[var(--glow-primary)] flex items-center justify-center gap-2 uppercase tracking-widest text-xs">
+                    Comenzar Curso
                 </button>
-                <div class="flex items-start gap-6">
-                    <div id="cursoLogo"
-                        class="w-16 h-16 rounded-2xl bg-[#1e2235] p-3 border border-white/10 flex items-center justify-center flex-shrink-0">
-                    </div>
-                    <div class="flex-1">
-                        <h2 id="cursoTitulo" class="text-3xl font-black mb-2">Cargando...</h2>
-                        <p id="cursoMeta" class="text-slate-500 text-sm"></p>
-                    </div>
-                </div>
             </div>
-            <div id="cursoContenido" class="space-y-8">
-                <div class="py-20 text-center opacity-20">
-                    <i data-lucide="loader" class="w-16 h-16 mx-auto mb-4 animate-spin"></i>
-                    <p class="text-sm font-bold">Cargando syllabus...</p>
-                </div>
-            </div>
-        </section>
+        </div>
+    </div>
+</section>

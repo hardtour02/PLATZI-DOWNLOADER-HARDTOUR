@@ -23,9 +23,12 @@ from scraper.constants import SESSION_FILE
 # Import Routers
 from backend.app.api.auth import router as auth_router
 from backend.app.api.courses import router as courses_router
-from backend.app.api.catalog import router as catalog_router
+from backend.app.api.catalog import router as catalog_router, load_catalog_into_memory
+
 from backend.app.api.drive import router as drive_router
 from backend.app.api.assets import router as assets_router
+from backend.app.api.progress import router as progress_router
+from backend.app.api.logs import router as logs_router
 
 async def preload_catalog_if_needed():
     """On startup: if catalog.json is missing but we have a Platzi session, scrape the catalog."""
@@ -98,6 +101,8 @@ app.include_router(courses_router)
 app.include_router(catalog_router)
 app.include_router(drive_router)
 app.include_router(assets_router)
+app.include_router(progress_router)
+app.include_router(logs_router)
 
 @app.get("/favicon.ico")
 async def favicon():
