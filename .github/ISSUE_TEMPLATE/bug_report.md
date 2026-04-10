@@ -1,9 +1,9 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
+about: Create a report to help us improve PLATZI DOWNLOADER - HARDTOUR Edition
+title: '[BUG] '
+labels: 'bug'
+assignees: 'hardtour02'
 ---
 
 ## Descripción del problema
@@ -13,12 +13,12 @@ Una descripción clara y concisa del bug.
 ## Comando ejecutado
 
 ```bash
-# Ejemplo: platzi download URL
+# Ejemplo: start_windows.bat o python -m backend.app.main
 ```
 
 ## Pasos para reproducir
 
-1. Ejecutar `platzi login` (si aplica)
+1. Iniciar la aplicación (`start_windows.bat` o `python run.py`)
 2. Ejecutar el comando: `...`
 3. Ver el error en: `...`
 
@@ -46,10 +46,10 @@ Pega aquí los mensajes de error completos
 ## Contexto adicional
 
 **¿El problema ocurre con:**
-- [ ] Login (`platzi login`)
-- [ ] Logout (`platzi logout`)
-- [ ] Descarga de curso (`platzi download`)
-- [ ] Limpieza de caché (`platzi clear-cache`)
+- [ ] Login (Navegador automatizado)
+- [ ] Descarga de curso (Motor de Scraping)
+- [ ] Visualización en "Mis Cursos"
+- [ ] Sincronización con Drive
 
 **Tipo de contenido afectado:**
 - [ ] Videos
@@ -58,10 +58,9 @@ Pega aquí los mensajes de error completos
 - [ ] Todos los tipos
 
 **¿Ya intentaste?**
-- [ ] Limpiar la caché con `platzi clear-cache`
-- [ ] Eliminar la carpeta `.tmp` del curso
-- [ ] Volver a hacer login
-- [ ] Actualizar platzi-downloader con `pip install -U platzi`
+- [ ] Volver a iniciar la sesión desde el panel lateral
+- [ ] Verificar que FFmpeg esté instalado en el PATH
+- [ ] Revisar el archivo `data/history.json`
 
 ## Screenshots (opcional)
 

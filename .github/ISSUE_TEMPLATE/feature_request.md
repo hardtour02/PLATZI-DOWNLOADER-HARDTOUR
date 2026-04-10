@@ -1,10 +1,8 @@
----
 name: Feature Request
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
----
+about: Suggest an idea for PLATZI DOWNLOADER - HARDTOUR Edition
+title: '[SOLICITUD] '
+labels: 'enhancement'
+assignees: 'hardtour02'
 
 ## ¿Tu solicitud está relacionada con un problema?
 
@@ -16,11 +14,12 @@ Una descripción clara y concisa de lo que quieres que suceda.
 
 ## Contexto de la funcionalidad
 
-**¿A qué comando(s) afectaría esta funcionalidad?**
-- [ ] `platzi login` - Autenticación
-- [ ] `platzi logout` - Cerrar sesión
-- [ ] `platzi download` - Descarga de cursos
-- [ ] `platzi clear-cache` - Limpieza de caché
+**¿A qué área afectaría esta funcionalidad?**
+- [ ] Autenticación (Navegador)
+- [ ] Catálogo de Cursos
+- [ ] Motor de Descarga (FFMPEG/TS)
+- [ ] Interfaz de Usuario (Dashboard)
+- [ ] Sincronización con la Nube
 - [ ] Nuevo comando (especifica): `___`
 
 **¿Qué tipo de contenido involucra?**
@@ -33,9 +32,9 @@ Una descripción clara y concisa de lo que quieres que suceda.
 
 ## Ejemplos de uso propuestos
 
-**Ejemplo de comando:**
+**Propuesta de interfaz:**
 ```bash
-# Ejemplo: platzi download <url> --quality 720p
+# Ejemplo: Acción deseada o cambio en archivos de configuración
 ```
 
 **Comportamiento esperado:**
