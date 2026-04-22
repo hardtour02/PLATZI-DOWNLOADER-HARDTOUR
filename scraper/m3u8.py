@@ -219,9 +219,8 @@ async def m3u8_dl(
     """
 
     # quality selection
-    quality = kwargs.get("quality", "720")
-
-    quality = 0 if quality == "720" else 1
+    quality_pref = kwargs.get("quality", "720")
+    q_idx = 0 if quality_pref == "720" else 1
 
     overwrite = kwargs.get("overwrite", False)
     path = path if isinstance(path, Path) else Path(path)
@@ -267,12 +266,11 @@ async def m3u8_dl(
         # quality "720" is usually the 1st or 2nd resolution. 
         # Platzi usually has 2 or 3 resolutions.
         # We'll take the first one available if quality index is out of range.
-        idx = 0 if quality == "720" else (1 if len(video_urls) > 1 else 0)
-        if idx >= len(video_urls):
-            idx = 0
+        if q_idx >= len(video_urls):
+            q_idx = 0
             
         await _m3u8_dl(
-            video_urls[idx], path, **kwargs
+            video_urls[q_idx], path, **kwargs
         )
 
     except Exception:

@@ -34,7 +34,7 @@ async def get_course_metadata(page: Page) -> dict:
         pass
     
     # Intentar extraer todo via JS para ser más robusto
-    metadata = await page.evaluate("""
+    metadata = await page.evaluate(r"""
         () => {
             const findSrc = (sel) => {
                 const el = document.querySelector(sel);
@@ -81,7 +81,7 @@ async def get_draft_chapters(page: Page) -> list[Chapter]:
             pass
 
         # Extraer syllabus completo via JS hiper-robusto sin depender de clases CSS
-        syllabus_data = await page.evaluate("""
+        syllabus_data = await page.evaluate(r"""
             () => {
                 const chapters = [];
                 let currentChapter = { name: "Módulo Principal", units: [] };
@@ -105,7 +105,7 @@ async def get_draft_chapters(page: Page) -> list[Chapter]:
                     } else {
                         // It's a lesson link
                         const unitTitleEl = el.querySelector("h3, strong, p, [class*='title']") || el;
-                        const unitTitle = (unitTitleEl.innerText || '').trim().split('\\n')[0];
+                        const unitTitle = (unitTitleEl.innerText || '').trim().split('\n')[0];
                         if (!unitTitle) return;
                         
                         const url = el.getAttribute('href');
@@ -113,7 +113,7 @@ async def get_draft_chapters(page: Page) -> list[Chapter]:
                         // Buscar duración
                         let duration = null;
                         const durEl = el.querySelector("span[class*='Duration'], .Duration") || 
-                                      Array.from(el.querySelectorAll('span, p')).find(s => s.innerText.includes('min') || /\\d+:\\d+/.test(s.innerText));
+                                      Array.from(el.querySelectorAll('span, p')).find(s => s.innerText.includes('min') || /\d+:\d+/.test(s.innerText));
                         
                         if (durEl) {
                             duration = durEl.innerText.replace('min', '').trim();
@@ -126,8 +126,8 @@ async def get_draft_chapters(page: Page) -> list[Chapter]:
                         if (!thumb) {
                             const bg = el.querySelector('[style*="background"]');
                             if (bg) {
-                                const m = bg.style.backgroundImage.match(/url\\(["']?([^"']+)["']?\\)/);
-                                if (m) thumb = m[1];
+                                const m = bg.style.backgroundImage.match(/url\((["']?)([^"']+)["']?\)/);
+                                if (m) thumb = m[2];
                             }
                         }
                         
@@ -266,14 +266,16 @@ async def get_unit(context: BrowserContext, url: str, thumbnail_url: str | None 
         if not title:
             raise EXCEPTION
 
+        # Detect locked/premium content indicators
+        is_locked = await page.locator("[class*='Paywall'], [class*='Banner_Banner__'], [class*='LockIcon']").count() > 0
         video_player_visible = await page.locator(TYPE_SELECTOR).is_visible()
 
-        if not video_player_visible:
+        if is_locked or not video_player_visible:
             # Check if we have a thumbnail_url → can bypass paywall via MediaStream
             m3u8_from_thumb = get_m3u8_url_from_thumbnail(thumbnail_url)
             if m3u8_from_thumb:
                 from scraper.logger import Logger
-                Logger.info(f"[BYPASS] Locked lesson → using thumbnail m3u8: {url}")
+                Logger.info(f"[BYPASS] Locked/Hidden lesson ({url}) → using thumbnail m3u8")
                 video = Video(url=m3u8_from_thumb, token=None, subtitles_url=None)
                 return Unit(
                     url=url,
@@ -282,13 +284,15 @@ async def get_unit(context: BrowserContext, url: str, thumbnail_url: str | None 
                     video=video,
                     slug=slugify(title),
                 )
-            # No thumbnail bypass available → treat as lecture/text
-            return Unit(
-                url=url,
-                title=title,
-                type=TypeUnit.LECTURE,
-                slug=slugify(title),
-            )
+            
+            if not video_player_visible:
+                # No thumbnail bypass available → treat as lecture/text
+                return Unit(
+                    url=url,
+                    title=title,
+                    type=TypeUnit.LECTURE,
+                    slug=slugify(title),
+                )
 
         # It's a video unit with a visible player
         content = await page.content()

@@ -461,7 +461,7 @@ class AsyncPlatzi:
 
     async def _scroll_page(self, page):
         """Helper to handle lazy loading."""
-        await page.evaluate("""
+        await page.evaluate(r"""
             async () => {
                 await new Promise((resolve) => {
                     let totalHeight = 0;
@@ -487,7 +487,7 @@ class AsyncPlatzi:
             await page.evaluate("window.scrollTo(0, document.body.scrollHeight / 2)")
             await page.wait_for_timeout(2000)
             
-            links = await page.evaluate("""
+            links = await page.evaluate(r"""
                 () => {
                     const results = [];
                     // Using selectors found: footer links or main list links
@@ -495,8 +495,8 @@ class AsyncPlatzi:
                     
                     schoolLinks.forEach(el => {
                         const href = el.getAttribute('href') || '';
-                        const slug = href.replace('/escuela/', '').replace(/\\/+$/, '');
-                        const title = el.textContent.trim().split('\\n')[0].trim();
+                        const slug = href.replace('/escuela/', '').replace(/\/+$/, '');
+                        const title = el.textContent.trim().split('\n')[0].trim();
                         
                         if (slug && slug !== 'escuela' && title) {
                             results.push({
@@ -663,6 +663,9 @@ class AsyncPlatzi:
                     # Smart Resume: Check history AND physical file
                     if history_manager.is_downloaded(course_slug, lesson_slug) and dst.exists() and dst.stat().st_size > 1024:
                         Logger.info(f"Skipping (already downloaded): {draft_unit.title}")
+                        # Notify frontend so it shows "Listo ✓" for this lesson
+                        if progress_callback:
+                            await progress_callback(lesson_slug, 100, title=draft_unit.title)
                         continue
                     elif history_manager.is_downloaded(course_slug, lesson_slug):
                         Logger.warning(f"Lesson marked as downloaded but file missing or empty. Re-downloading: {draft_unit.title}")
@@ -723,9 +726,9 @@ class AsyncPlatzi:
                                     else ""
                                 )
 
-                                dst = CHAP_DIR / f"{file_name}{lang}.vtt"
-                                Logger.print(f"[{dst.name}]", "[DOWNLOADING-SUBS]")
-                                await download(sub, dst, **kwargs)
+                                dst_sub = chapter_dir / f"{file_name}{lang}.vtt"
+                                Logger.print(f"[{dst_sub.name}]", "[DOWNLOADING-SUBS]")
+                                await download(sub, dst_sub, **kwargs)
 
                         # download resources
                         if unit.resources:
@@ -733,41 +736,41 @@ class AsyncPlatzi:
                             files = unit.resources.files_url
                             if files:
                                 for archive in files:
-                                    file_name = unquote(os.path.basename(archive))
-                                    dst = CHAP_DIR / f"{jdx:02}-{file_name}"
-                                    Logger.print(f"[{dst.name}]", "[DOWNLOADING-FILES]")
-                                    await download(archive, dst)
+                                    res_file_name = unquote(os.path.basename(archive))
+                                    dst_res = chapter_dir / f"{jdx:02}-{res_file_name}"
+                                    Logger.print(f"[{dst_res.name}]", "[DOWNLOADING-FILES]")
+                                    await download(archive, dst_res)
 
                             # download readings
                             readings = unit.resources.readings_url
                             if readings:
-                                dst = CHAP_DIR / f"{jdx:02}-Lecturas recomendadas.txt"
-                                Logger.print(f"[{dst.name}]", "[SAVING-READINGS]")
-                                with open(dst, "w", encoding="utf-8") as f:
+                                dst_read = chapter_dir / f"{jdx:02}-Lecturas recomendadas.txt"
+                                Logger.print(f"[{dst_read.name}]", "[SAVING-READINGS]")
+                                with open(dst_read, "w", encoding="utf-8") as f:
                                     for lecture in readings:
                                         f.write(lecture + "\n")
 
                             # download summary
                             summary = unit.resources.summary
                             if summary:
-                                dst = CHAP_DIR / f"{jdx:02}-Resumen.html"
-                                Logger.print(f"[{dst.name}]", "[SAVING-SUMMARY]")
-                                with open(dst, "w", encoding="utf-8") as f:
+                                dst_summary = chapter_dir / f"{jdx:02}-Resumen.html"
+                                Logger.print(f"[{dst_summary.name}]", "[SAVING-SUMMARY]")
+                                with open(dst_summary, "w", encoding="utf-8") as f:
                                     f.write(summary)
 
                     # download lecture
                     if unit.type == TypeUnit.LECTURE:
-                        dst = CHAP_DIR / f"{file_name}.mhtml"
-                        Logger.print(f"[{dst.name}]", "[DOWNLOADING-LECTURE]")
-                        await self.save_page(unit.url, path=dst)
-                        unit_local_path = str(Path(dst).absolute())
+                        dst_lecture = chapter_dir / f"{file_name}.mhtml"
+                        Logger.print(f"[{dst_lecture.name}]", "[DOWNLOADING-LECTURE]")
+                        await self.save_page(unit.url, path=dst_lecture)
+                        unit_local_path = str(Path(dst_lecture).absolute())
 
                     # download quiz
                     if unit.type == TypeUnit.QUIZ:
-                        dst = CHAP_DIR / f"{file_name}.mhtml"
-                        Logger.print(f"[{dst.name}]", "[DOWNLOADING-QUIZ]")
-                        await self.save_page(unit.url, path=dst)
-                        unit_local_path = str(Path(dst).absolute())
+                        dst_quiz = chapter_dir / f"{file_name}.mhtml"
+                        Logger.print(f"[{dst_quiz.name}]", "[DOWNLOADING-QUIZ]")
+                        await self.save_page(unit.url, path=dst_quiz)
+                        unit_local_path = str(Path(dst_quiz).absolute())
 
                     # --- Unified History Tracking (for all types: video, lecture, quiz) ---
                     history_manager.mark_completed(

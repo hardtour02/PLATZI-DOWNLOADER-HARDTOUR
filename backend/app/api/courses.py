@@ -104,11 +104,15 @@ async def start_download(background_tasks: BackgroundTasks, data: Dict):
     slug = parts[-1] if parts else ""
     
     history = history_manager.get_history()
-    if slug in history.get("courses", {}) and not force:
-        course = history["courses"][slug]
+    course_exists = slug in history.get("courses", {})
+    
+    if course_exists and not force:
+        # Course exists but we allow resume — the Smart Resume logic in api.py
+        # will skip already-downloaded lessons and continue from where it left off
+        background_tasks.add_task(run_download_task, url)
         return {
-            "status": "exists", 
-            "message": f"El curso '{course.get('title')}' ya ha sido descargado anteriormente.",
+            "status": "resuming", 
+            "message": f"Reanudando descarga del curso. Las lecciones ya descargadas se omitirán.",
             "slug": slug
         }
 

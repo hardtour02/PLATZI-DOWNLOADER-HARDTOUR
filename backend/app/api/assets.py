@@ -80,10 +80,10 @@ async def fetch_course_assets(slug: str):
             await asyncio.sleep(2)
 
             # og:image as thumbnail
-            og_image = await page.evaluate("""() => document.querySelector('meta[property="og:image"]')?.content""")
+            og_image = await page.evaluate(r"""() => document.querySelector('meta[property="og:image"]')?.content""")
 
             # Logo / Badge
-            logo_url = await page.evaluate("""
+            logo_url = await page.evaluate(r"""
                 () => {
                     const candidates = [
                         document.querySelector('img[src*="achievements"]'),
@@ -98,7 +98,7 @@ async def fetch_course_assets(slug: str):
             async def download_image(url, dest):
                 if not url: return None
                 try:
-                    b64 = await page.evaluate("""
+                    b64 = await page.evaluate(r"""
                         async (u) => {
                             const r = await fetch(u);
                             const b = await r.blob();
@@ -119,7 +119,7 @@ async def fetch_course_assets(slug: str):
             logo_local = await download_image(logo_url, assets_dir / "logo.png")
 
             # Authors and Category
-            author = await page.evaluate("""
+            author = await page.evaluate(r"""
                 () => {
                     const selectors = ['.CourseAuthor-name', '.Teacher-name', 'a[href*="/profes/"] span', '.Header-course-teacher'];
                     for (const s of selectors) {
@@ -129,7 +129,7 @@ async def fetch_course_assets(slug: str):
                     return null;
                 }""")
 
-            category = await page.evaluate("""
+            category = await page.evaluate(r"""
                 () => {
                     const selectors = ['.CourseHeader-category-link', 'a[href*="/categorias/"]', '.Breadcrumb-item:nth-child(2)'];
                     for (const s of selectors) {
