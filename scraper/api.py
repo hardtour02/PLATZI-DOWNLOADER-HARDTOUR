@@ -645,14 +645,12 @@ class AsyncPlatzi:
             for idx, draft_chapter in enumerate(draft_chapters, 1):
                 time.sleep(0.3)  # arbitrary delay
                 num_units = len(draft_chapter.units)
-                total_units += num_units
+                total_units += len(draft_chapter.units)
                 table.add_row(f"{idx}-{draft_chapter.name}", str(len(draft_chapter.units)))
                 table.columns[1].footer = str(total_units)  # Update footer dynamically
 
-                Logger.info(f"Creating directory: {draft_chapter.name}")
-
-                CHAP_DIR = DL_DIR / f"{idx:02}-{clean_string(draft_chapter.name)}"
-                CHAP_DIR.mkdir(parents=True, exist_ok=True)
+                chapter_dir = DL_DIR / f"{idx:02}-{clean_string(draft_chapter.name)}"
+                chapter_dir.mkdir(parents=True, exist_ok=True)
 
                 # iterate over units
                 for jdx, draft_unit in enumerate(draft_chapter.units, 1):
@@ -660,11 +658,11 @@ class AsyncPlatzi:
                     course_slug = slugify(course_title)
 
                     file_name = f"{jdx:02}-{clean_string(draft_unit.title)}"
-                    dst = CHAP_DIR / f"{file_name}.mp4"
+                    dst = chapter_dir / f"{file_name}.mp4"
                     
                     # Smart Resume: Check history AND physical file
                     if history_manager.is_downloaded(course_slug, lesson_slug) and dst.exists() and dst.stat().st_size > 1024:
-                        Logger.info(f"Skipping (already on disk): {draft_unit.title}")
+                        Logger.info(f"Skipping (already downloaded): {draft_unit.title}")
                         continue
                     elif history_manager.is_downloaded(course_slug, lesson_slug):
                         Logger.warning(f"Lesson marked as downloaded but file missing or empty. Re-downloading: {draft_unit.title}")

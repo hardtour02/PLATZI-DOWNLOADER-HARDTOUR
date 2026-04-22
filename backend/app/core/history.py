@@ -220,7 +220,11 @@ class LogManager:
     def __init__(self):
         self.file = Path("data/events.json")
         self._ensure_file()
-        self.data = read_json(self.file) or {"events": []}
+        raw_data = read_json(self.file)
+        if isinstance(raw_data, list):
+            self.data = {"events": raw_data}
+        else:
+            self.data = raw_data or {"events": []}
 
     def _ensure_file(self):
         if not self.file.exists():
