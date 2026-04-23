@@ -434,6 +434,9 @@
                 <!-- VIEW: CURSOS -->
                 {% include 'components/_view_cursos.jinja2' %}
 
+                <!-- VIEW: TRACKING -->
+                {% include 'components/_view_tracking.jinja2' %}
+
                 <!-- VIEW: DRIVE (Cloud Sync) -->
                 {% include 'components/_view_drive.jinja2' %}
 
@@ -594,6 +597,7 @@
 
             // Refresh data based on view
             if (viewId === 'cursos') fetchHistory();
+            if (viewId === 'tracking') fetchHistory();
             if (viewId === 'drive') loadDriveStatus();
             if (viewId === 'registro') {
                 const activeTabBtn = document.querySelector('.tab-btn.active');
@@ -617,6 +621,7 @@
                 c.classList.toggle('hidden', c.id !== 'reg-tab-' + tab);
             });
             if (tab === 'bitacora') fetchActivityLogs();
+            else if (tab === 'drive') fetchDriveLogs();
             else fetchSharingLogs();
         }
 
@@ -845,17 +850,20 @@
             if (!progressCache || !progressCache.metrics) return;
             const m = progressCache.metrics;
             
-            const els = {
-                total: document.getElementById('metric-total'),
-                completados: document.getElementById('metric-completados'),
-                progreso: document.getElementById('metric-progreso'),
-                storage: document.getElementById('metric-storage')
-            };
+            // Update both views (Cursos and Tracking)
+            const metricPairs = [
+                ['metric-total', 'tracking-metric-total', m.total || 0],
+                ['metric-completados', 'tracking-metric-completados', m.completados || 0],
+                ['metric-progreso', 'tracking-metric-progreso', m.en_progreso || 0],
+                ['metric-storage', 'tracking-metric-storage', `${m.gb_disco || 0} <span class="text-sm font-bold opacity-30">GB</span>`]
+            ];
 
-            if (els.total) els.total.innerText = m.total || 0;
-            if (els.completados) els.completados.innerText = m.completados || 0;
-            if (els.progreso) els.progreso.innerText = m.en_progreso || 0;
-            if (els.storage) els.storage.innerHTML = `${m.gb_disco || 0} <span class="text-sm font-bold opacity-30">GB</span>`;
+            metricPairs.forEach(([id1, id2, val]) => {
+                const el1 = document.getElementById(id1);
+                const el2 = document.getElementById(id2);
+                if (el1) el1.innerHTML = val;
+                if (el2) el2.innerHTML = val;
+            });
             
             const badge = document.getElementById('courseCountBadge');
             if (badge) badge.innerText = `${m.total || 0} CURSOS`;
@@ -1858,8 +1866,17 @@
                 el.querySelector('.gdp-bar').style.width = '100%';
                 el.querySelector('.gdp-bar').classList.replace('bg-sky-500', 'bg-emerald-500');
                 el.querySelector('.gdp-filename').innerText = stats;
-                el.querySelector('.gdp-detail').innerHTML = `<a href="${msg.folder_url}" target="_blank" class="text-sky-400 hover:underline">📂 Abrir en Drive</a>`;
+
+                // Auto-clear after 3 seconds
+                setTimeout(() => {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(-10px)';
+                    el.style.transition = 'all 0.5s ease';
+                    setTimeout(() => el.remove(), 500);
+                }, 3000);
             }
+            fetchDriveStatus();
+            fetchDriveLogs(); // Refresh logs if open
             loadDriveCourses();
         }
 
@@ -1932,6 +1949,56 @@
                    class="w-4 h-4 mx-auto ${ev.status === 'success' ? 'text-emerald-500' : ev.status === 'error' ? 'text-red-500' : 'text-slate-600'}"></i>
             </td>
         `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        async function fetchDriveLogs() {
+            try {
+                const r = await fetch('/api/log/events?limit=100');
+                const data = await r.json();
+                const driveEvents = (data.events || []).filter(e => e.type.includes('sync_'));
+                renderDriveLogTable(driveEvents);
+            } catch (e) { console.error("Error fetching drive logs", e); }
+        }
+
+        function renderDriveLogTable(events) {
+            const tbody = document.getElementById('driveLogBody');
+            const empty = document.getElementById('driveLogEmpty');
+            tbody.innerHTML = '';
+
+            if (events.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            events.reverse().forEach(ev => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-white/5 hover:bg-white/[.03] transition';
+
+                const dateStr = new Date(ev.timestamp).toLocaleString('es-ES', {
+                    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+                });
+
+                let statusHtml = '';
+                if (ev.status === 'success') {
+                    statusHtml = '<span class="px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">COMPLETADO</span>';
+                } else if (ev.status === 'error') {
+                    statusHtml = '<span class="px-2 py-1 rounded-md bg-red-500/10 text-red-400 text-[10px] font-bold">FALLIDO</span>';
+                } else {
+                    statusHtml = '<span class="px-2 py-1 rounded-md bg-sky-500/10 text-sky-400 text-[10px] font-bold">PROCESANDO</span>';
+                }
+
+                tr.innerHTML = `
+                    <td class="p-4 text-xs font-mono text-slate-500">${dateStr}</td>
+                    <td class="p-4">
+                        <div class="text-sm font-medium text-slate-300">${ev.message}</div>
+                        ${ev.slug ? `<div class="text-[10px] text-slate-600 mt-0.5">ID: ${ev.slug}</div>` : ''}
+                    </td>
+                    <td class="p-4 text-center">${statusHtml}</td>
+                `;
                 tbody.appendChild(tr);
             });
             lucide.createIcons();

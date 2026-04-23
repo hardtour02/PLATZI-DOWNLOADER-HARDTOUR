@@ -8,6 +8,9 @@
                 <div class="flex bg-black/40 p-1 rounded-xl border border-white/5">
                     <button onclick="switchRegTab('bitacora')" id="tab-bitacora"
                         class="tab-btn active px-6 py-2 rounded-lg text-xs font-bold transition">Bitácora</button>
+                    <button onclick="switchRegTab('drive')" id="tab-drive"
+                        class="tab-btn px-6 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:text-white">Log
+                        Drive</button>
                     <button onclick="switchRegTab('envios')" id="tab-envios"
                         class="tab-btn px-6 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:text-white">Envíos
                         Drive</button>
@@ -21,6 +24,26 @@
                     box-shadow: 0 4px 12px rgba(0, 242, 161, 0.2);
                 }
             </style>
+
+            <!-- TAB: LOG DRIVE -->
+            <div id="reg-tab-drive" class="reg-tab-content hidden">
+                <div class="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 180px;">Fecha / Hora</th>
+                                <th>Curso / Acción</th>
+                                <th style="width: 100px;" class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="driveLogBody"></tbody>
+                    </table>
+                    <div id="driveLogEmpty" class="hidden p-20 text-center text-slate-500">
+                        <i data-lucide="cloud-upload" class="w-12 h-12 mx-auto mb-4 opacity-10"></i>
+                        <p class="text-sm">No hay actividad de Drive registrada.</p>
+                    </div>
+                </div>
+            </div>
 
             <!-- TAB: BITACORA -->
             <div id="reg-tab-bitacora" class="reg-tab-content">

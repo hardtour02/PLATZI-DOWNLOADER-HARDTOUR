@@ -205,6 +205,7 @@ async def gdrive_sync_remote():
 async def run_gdrive_sync_task(slugs: List[str], share: bool):
     """Background task: upload selected courses to Google Drive."""
     from backend.app.main import broadcast_update # Lazy import
+    from backend.app.core.history import log_manager # Lazy import
     history = history_manager.get_history()
     loop = asyncio.get_event_loop()
 
@@ -214,6 +215,10 @@ async def run_gdrive_sync_task(slugs: List[str], share: bool):
     for slug in slugs:
         course = history.get("courses", {}).get(slug)
         if not course: continue
+        course_path = Path(course["path"])
+        title = course.get("title", slug)
+        
+        log_manager.add_event("gdrive", f"Iniciando subida de curso: {title}", slug=slug, status="info")
         course_path = Path(course["path"])
         title = course.get("title", slug)
 
@@ -262,6 +267,12 @@ async def run_gdrive_sync_task(slugs: List[str], share: bool):
             history_manager.update_gdrive_info(slug, folder_id, folder_url, shared=share)
             
             msg_type = "gdrive_already_synced" if result["uploaded"] == 0 and result["skipped"] == result["total"] else "gdrive_done"
+            
+            if msg_type == "gdrive_done":
+                log_manager.add_event("gdrive", f"Subida completada con éxito: {title} ({result['uploaded']} archivos)", slug=slug, status="success")
+            else:
+                log_manager.add_event("gdrive", f"Curso ya estaba sincronizado: {title}", slug=slug, status="info")
+
             await broadcast_update({
                 "type": msg_type,
                 "slug": slug,
@@ -273,4 +284,5 @@ async def run_gdrive_sync_task(slugs: List[str], share: bool):
             })
         except Exception as exc:
             Logger.error(f"GDrive sync failed for {slug}: {exc}")
+            log_manager.add_event("gdrive", f"Error al subir curso: {title}. Motivo: {str(exc)}", slug=slug, status="error")
             await broadcast_update({"type": "gdrive_error", "slug": slug, "title": title, "message": str(exc)})
