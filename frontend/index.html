@@ -596,9 +596,12 @@
             if (viewId === 'cursos') fetchHistory();
             if (viewId === 'drive') loadDriveStatus();
             if (viewId === 'registro') {
-                const activeTab = document.querySelector('.tab-btn.active').id.replace('tab-', '');
-                if (activeTab === 'bitacora') fetchActivityLogs();
-                else fetchSharingLogs();
+                const activeTabBtn = document.querySelector('.tab-btn.active');
+                if (activeTabBtn) {
+                    const activeTab = activeTabBtn.id.replace('tab-', '');
+                    if (activeTab === 'bitacora') fetchActivityLogs();
+                    else fetchSharingLogs();
+                }
             }
             if (viewId === 'catalogo') fetchCatalog();
 
@@ -646,6 +649,14 @@
                 document.getElementById('pulseDot').classList.replace('bg-[#00f2a1]', 'bg-red-500');
                 document.getElementById('downloadStatusText').innerText = 'Error en descarga:';
                 lucide.createIcons();
+            }
+            else if (msg.type === 'download_complete') {
+                // Download finished: refresh history, reset progress panel after brief delay
+                fetchHistory();
+                setTimeout(() => {
+                    document.getElementById('activeProgress').classList.add('hidden');
+                    document.getElementById('syllabusList').innerHTML = '';
+                }, 3000);
             }
         };
 
@@ -806,14 +817,25 @@
         }
 
         // Mapeo seguro a la caché global del catálogo
-        function findCourseInCatalog(slug) {
+        // Matches by catalog slug OR by slugified course title
+        function findCourseInCatalog(historySlug) {
             if (!catalogCache || !catalogCache.schools) return null;
             for (const school of catalogCache.schools) {
                 if (!school.rutas) continue;
                 for (const ruta of school.rutas) {
                     if (!ruta.cursos) continue;
-                    const course = ruta.cursos.find(c => c.slug === slug);
-                    if (course) return course;
+                    // Direct slug match
+                    const direct = ruta.cursos.find(c => c.slug === historySlug);
+                    if (direct) return direct;
+                    // Title-based match: slugify the catalog title and compare
+                    const titleMatch = ruta.cursos.find(c => {
+                        if (!c.title) return false;
+                        const catalogTitleSlug = c.title.toLowerCase()
+                            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                            .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                        return catalogTitleSlug === historySlug;
+                    });
+                    if (titleMatch) return titleMatch;
                 }
             }
             return null;
@@ -923,6 +945,8 @@
 
                 data.courses.forEach(c => {
                     const catEntry = findCourseInCatalog(c.slug);
+                    // Use catalog slug for asset lookup (badges/thumbnails are named by catalog slug)
+                    const assetSlug = catEntry?.slug || c.slug;
                     const resolvePath = (p) => {
                         if (!p || p.startsWith('http') || p.startsWith('data:') || p.startsWith('/api/')) return p;
                         return `/api/assets/${p.replace(/^\/+/, '')}`.replace(/([^:])\/\//g, '$1/');
@@ -930,9 +954,9 @@
 
                     const isDeleted = c.exists === false;
                     
-                    // Priority: 1) assetmadre per-course folder
-                    let thumb = `/api/assets/assetmadre/thumbnails/${c.slug}.jpg`;
-                    let logo = `/api/assets/assetmadre/badges/${c.slug}.png`;
+                    // Priority: 1) assetmadre per-course folder using catalog slug
+                    let thumb = `/api/assets/assetmadre/thumbnails/${assetSlug}.jpg`;
+                    let logo = `/api/assets/assetmadre/badges/${assetSlug}.png`;
 
                     const progress = progressCache.by_slug?.[c.slug];
                     const percentage = progress?.porcentaje || 0;
@@ -1510,9 +1534,11 @@
 
                 const st = driveCourseStatus[slug] || {};
                 const catalogData = findCourseInCatalog(slug);
+                // Use catalog slug for asset lookup (badges are named by catalog slug)
+                const driveAssetSlug = catalogData?.slug || slug;
 
-                // Priority: assetmadre path
-                const logo = `/api/assets/assetmadre/badges/${slug}.png`;
+                // Priority: assetmadre path using catalog slug
+                const logo = `/api/assets/assetmadre/badges/${driveAssetSlug}.png`;
 
                 const synced = st.synced;
                 const checked = driveSelected.has(slug) ? 'checked' : '';

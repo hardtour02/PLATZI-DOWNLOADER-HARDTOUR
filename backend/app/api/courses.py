@@ -219,6 +219,9 @@ async def run_download_task(url: str):
                 await broadcast_update({"type": "progress", "lesson_id": lesson_id, "title": title, "progress": progress})
 
             await platzi.download(url, progress_callback=report_progress, preview_callback=report_syllabus)
+            
+            # Notify frontend that download is fully complete
+            await broadcast_update({"type": "download_complete", "url": url})
         except Exception as e:
              Logger.error(f"Download task failed: {e}")
              await broadcast_update({"type": "error", "message": f"Error de descarga: {str(e)}"})
